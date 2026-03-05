@@ -6,7 +6,7 @@ import hashlib
 import os
 import io
 import numpy as np
-import tensorflow as tf
+# import tensorflow as tf (Moved to lazy load)
 from PIL import Image
 from datetime import datetime
 from typing import List, Optional
@@ -103,7 +103,12 @@ async def signup(user: UserSignup):
 # --- 3. Prediction Models & Logic ---
 model = None
 if os.path.exists(MODEL_PATH):
-    model = tf.keras.models.load_model(MODEL_PATH)
+    try:
+        import tensorflow as tf
+        model = tf.keras.models.load_model(MODEL_PATH)
+        print("✅ AI Model loaded successfully.")
+    except Exception as e:
+        print(f"⚠️ Error loading model: {e}")
 
 def preprocess_image(image_bytes):
     img = Image.open(io.BytesIO(image_bytes)).convert('RGB').resize((224, 224))
