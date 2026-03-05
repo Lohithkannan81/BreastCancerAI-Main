@@ -246,60 +246,62 @@ const NewAnalysis: React.FC = () => {
             </div>
           )}
 
-          <div className={`p-4 md:p-8 rounded-2xl border-2 transition-all-custom fade-in ${result.tumorClass.toUpperCase() === 'MALIGNANT'
-            ? 'bg-red-50 border-red-200'
-            : 'bg-green-50 border-green-200'
-            }`}>
-            <div className="flex flex-col sm:flex-row items-start justify-between mb-6 gap-4">
-              <div>
-                <h3 className={`text-lg font-bold ${result.tumorClass.toUpperCase() === 'MALIGNANT' ? 'text-red-900' : 'text-green-900'
-                  }`}>
-                  Prediction: {result.tumorClass}
-                </h3>
-                <p className={`${result.tumorClass.toUpperCase() === 'MALIGNANT' ? 'text-red-700' : 'text-green-700'
-                  } text-sm mt-1`}>
-                  {result.tumorClass.toUpperCase() === 'MALIGNANT'
-                    ? 'Malignant patterns detected. Further clinical evaluation recommended.'
-                    : 'No malignant indicators detected. Normal tissue morphology observed.'}
-                </p>
+          {/* Result Section */}
+          {result && status === AnalysisStatus.COMPLETED && (
+            <div className={`p-4 md:p-8 rounded-2xl border-2 transition-all-custom fade-in ${result.tumorClass.toUpperCase() === 'MALIGNANT'
+              ? 'bg-red-50 border-red-200'
+              : 'bg-green-50 border-green-200'
+              }`}>
+              <div className="flex flex-col sm:flex-row items-start justify-between mb-6 gap-4">
+                <div>
+                  <h3 className={`text-lg font-bold ${result.tumorClass.toUpperCase() === 'MALIGNANT' ? 'text-red-900' : 'text-green-900'
+                    }`}>
+                    Prediction: {result.tumorClass}
+                  </h3>
+                  <p className={`${result.tumorClass.toUpperCase() === 'MALIGNANT' ? 'text-red-700' : 'text-green-700'
+                    } text-sm mt-1`}>
+                    {result.tumorClass.toUpperCase() === 'MALIGNANT'
+                      ? 'Malignant patterns detected. Further clinical evaluation recommended.'
+                      : 'No malignant indicators detected. Normal tissue morphology observed.'}
+                  </p>
+                </div>
+                <div className="text-left sm:text-right">
+                  <span className="text-2xl sm:text-3xl font-black text-slate-900">{result.confidence.toFixed(3)}%</span>
+                  <p className="text-[10px] text-slate-500 font-bold uppercase tracking-wider">Confidence Score</p>
+                </div>
               </div>
-              <div className="text-left sm:text-right">
-                <span className="text-2xl sm:text-3xl font-black text-slate-900">{result.confidence.toFixed(3)}%</span>
-                <p className="text-[10px] text-slate-500 font-bold uppercase tracking-wider">Confidence Score</p>
+
+              <div className="w-full h-3 bg-slate-200 rounded-full overflow-hidden mb-6">
+                <div
+                  className={`h-full transition-all duration-1000 ${result.tumorClass.toUpperCase() === 'MALIGNANT' ? 'bg-red-600' : 'bg-green-600'
+                    }`}
+                  style={{ width: `${result.confidence}%` }}
+                ></div>
               </div>
-            </div>
 
-            <div className="w-full h-3 bg-slate-200 rounded-full overflow-hidden mb-6">
-              <div
-                className={`h-full transition-all duration-1000 ${result.tumorClass.toUpperCase() === 'MALIGNANT' ? 'bg-red-600' : 'bg-green-600'
-                  }`}
-                style={{ width: `${result.confidence}%` }}
-              ></div>
-            </div>
-
-            <div className="bg-white/80 p-4 rounded-xl border border-slate-100 mb-6">
-              <h4 className="text-xs font-bold text-slate-500 uppercase tracking-widest mb-2">AI Findings</h4>
-              <p className="text-slate-700 text-sm leading-relaxed italic">{result.explanation}</p>
-            </div>
-
-            {recommendations.length > 0 && result.tumorClass.toUpperCase() === 'MALIGNANT' && (
               <div className="bg-white/80 p-4 rounded-xl border border-slate-100 mb-6">
-                <h4 className="text-xs font-bold text-slate-500 uppercase tracking-widest mb-2">Recommendations</h4>
-                <ul className="list-disc list-inside text-sm text-slate-700 space-y-1">
-                  {recommendations.map((rec, i) => (
-                    <li key={i}>{rec}</li>
-                  ))}
-                </ul>
+                <h4 className="text-xs font-bold text-slate-500 uppercase tracking-widest mb-2">AI Findings</h4>
+                <p className="text-slate-700 text-sm leading-relaxed italic">{result.explanation}</p>
               </div>
-            )}
 
-            <div className="flex gap-4">
-              <button onClick={handleDownloadPDF} className="flex-1 bg-slate-900 text-white py-3 rounded-xl font-bold hover:bg-slate-800 transition-all flex items-center justify-center gap-2">
-                <Icons.Reports />
-                Download PDF Report
-              </button>
+              {recommendations.length > 0 && result.tumorClass.toUpperCase() === 'MALIGNANT' && (
+                <div className="bg-white/80 p-4 rounded-xl border border-slate-100 mb-6">
+                  <h4 className="text-xs font-bold text-slate-500 uppercase tracking-widest mb-2">Recommendations</h4>
+                  <ul className="list-disc list-inside text-sm text-slate-700 space-y-1">
+                    {recommendations.map((rec, i) => (
+                      <li key={i}>{rec}</li>
+                    ))}
+                  </ul>
+                </div>
+              )}
+
+              <div className="flex gap-4">
+                <button onClick={handleDownloadPDF} className="flex-1 bg-slate-900 text-white py-3 rounded-xl font-bold hover:bg-slate-800 transition-all flex items-center justify-center gap-2">
+                  <Icons.Reports />
+                  Download PDF Report
+                </button>
+              </div>
             </div>
-          </div>
           )}
         </div>
 
