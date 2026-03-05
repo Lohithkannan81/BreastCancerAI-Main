@@ -59,52 +59,55 @@ const Dashboard: React.FC<DashboardProps> = ({ userName = 'Doctor' }) => {
           </div>
         </div>
 
-        <div className="h-64 flex items-end justify-around p-4 border-b border-l border-slate-200">
-          {totalAnalyses > 0 ? (
-            <>
-              <div className="w-32 flex flex-col items-center gap-2 group">
-                <div
-                  className="w-full bg-green-500 rounded-t-lg transition-all duration-500 relative hover:bg-green-600 shadow-lg"
-                  style={{
-                    height: `${Math.max(((totalAnalyses - malignantCount) / totalAnalyses) * 100, 10)}%`,
-                    minHeight: '40px'
-                  }}
-                >
-                  <div className="absolute -top-10 left-1/2 -translate-x-1/2 bg-slate-800 text-white text-sm py-1.5 px-3 rounded font-bold opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap">
-                    {totalAnalyses - malignantCount} cases
+        <div className="overflow-x-auto pb-4">
+          <div className="h-64 min-w-[500px] flex items-end justify-around p-4 border-b border-l border-slate-200">
+            {totalAnalyses > 0 ? (
+              <>
+                <div className="w-32 flex flex-col items-center gap-2 group">
+                  <div
+                    className="w-full bg-green-500 rounded-t-lg transition-all duration-500 relative hover:bg-green-600 shadow-lg"
+                    style={{
+                      height: `${Math.max(((totalAnalyses - malignantCount) / totalAnalyses) * 100, 10)}%`,
+                      minHeight: '40px'
+                    }}
+                  >
+                    <div className="absolute -top-10 left-1/2 -translate-x-1/2 bg-slate-800 text-white text-sm py-1.5 px-3 rounded font-bold opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap">
+                      {totalAnalyses - malignantCount} cases
+                    </div>
+                    <div className="absolute top-2 left-1/2 -translate-x-1/2 text-white font-bold text-lg">
+                      {totalAnalyses - malignantCount}
+                    </div>
                   </div>
-                  <div className="absolute top-2 left-1/2 -translate-x-1/2 text-white font-bold text-lg">
-                    {totalAnalyses - malignantCount}
-                  </div>
+                  <p className="text-sm font-bold text-slate-600">Benign</p>
+                  <p className="text-xs text-slate-400">{totalAnalyses > 0 ? Math.round(((totalAnalyses - malignantCount) / totalAnalyses) * 100) : 0}%</p>
                 </div>
-                <p className="text-sm font-bold text-slate-600">Benign</p>
-                <p className="text-xs text-slate-400">{totalAnalyses > 0 ? Math.round(((totalAnalyses - malignantCount) / totalAnalyses) * 100) : 0}%</p>
-              </div>
-              <div className="w-32 flex flex-col items-center gap-2 group">
-                <div
-                  className="w-full bg-red-500 rounded-t-lg transition-all duration-500 relative hover:bg-red-600 shadow-lg"
-                  style={{
-                    height: `${Math.max((malignantCount / totalAnalyses) * 100, 10)}%`,
-                    minHeight: '40px'
-                  }}
-                >
-                  <div className="absolute -top-10 left-1/2 -translate-x-1/2 bg-slate-800 text-white text-sm py-1.5 px-3 rounded font-bold opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap">
-                    {malignantCount} cases
+                <div className="w-32 flex flex-col items-center gap-2 group">
+                  <div
+                    className="w-full bg-red-500 rounded-t-lg transition-all duration-500 relative hover:bg-red-600 shadow-lg"
+                    style={{
+                      height: `${Math.max((malignantCount / totalAnalyses) * 100, 10)}%`,
+                      minHeight: '40px'
+                    }}
+                  >
+                    <div className="absolute -top-10 left-1/2 -translate-x-1/2 bg-slate-800 text-white text-sm py-1.5 px-3 rounded font-bold opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap">
+                      {malignantCount} cases
+                    </div>
+                    <div className="absolute top-2 left-1/2 -translate-x-1/2 text-white font-bold text-lg">
+                      {malignantCount}
+                    </div>
                   </div>
-                  <div className="absolute top-2 left-1/2 -translate-x-1/2 text-white font-bold text-lg">
-                    {malignantCount}
-                  </div>
+                  <p className="text-sm font-bold text-slate-600">Malignant</p>
+                  <p className="text-xs text-slate-400">{totalAnalyses > 0 ? Math.round((malignantCount / totalAnalyses) * 100) : 0}%</p>
                 </div>
-                <p className="text-sm font-bold text-slate-600">Malignant</p>
-                <p className="text-xs text-slate-400">{totalAnalyses > 0 ? Math.round((malignantCount / totalAnalyses) * 100) : 0}%</p>
+              </>
+            ) : (
+              <div className="w-full h-full flex flex-col items-center justify-center text-slate-400">
+                <Icons.Analysis size={48} className="opacity-20 mb-4" />
+                <p className="text-sm font-medium">No predictions yet</p>
+                <p className="text-xs mt-1">Perform an analysis to see statistics</p>
               </div>
-            </>
-          ) : (
-            <div className="w-full h-full flex flex-col items-center justify-center text-slate-400">
-              <Icons.Analysis size={48} className="opacity-20 mb-4" />
-              <p className="text-sm font-medium">No predictions yet</p>
-              <p className="text-xs mt-1">Perform an analysis to see statistics</p>
-            </div>
+            )}
+          </div>
           )}
         </div>
       </div>

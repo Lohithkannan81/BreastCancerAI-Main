@@ -148,6 +148,9 @@ interface DashboardLayoutProps {
 function DashboardLayout({ user, onLogout }: DashboardLayoutProps) {
   const navigate = useNavigate();
   const location = useLocation();
+  const [isSidebarOpen, setIsSidebarOpen] = useState(false);
+
+  const toggleSidebar = () => setIsSidebarOpen(!isSidebarOpen);
 
   const navItems = [
     { label: 'Overview', path: '/dashboard', icon: Icons.Dashboard },
@@ -158,10 +161,32 @@ function DashboardLayout({ user, onLogout }: DashboardLayoutProps) {
   ];
 
   return (
-    <div className="min-h-screen bg-slate-50 flex">
+    <div className="min-h-screen bg-slate-50 flex flex-col md:flex-row">
+      {/* Mobile Header */}
+      <header className="md:hidden bg-slate-900 text-white p-4 flex items-center justify-between sticky top-0 z-30 border-b border-slate-800">
+        <div className="flex items-center gap-2">
+          <div className="w-8 h-8 bg-blue-600 rounded-lg flex items-center justify-center text-white font-bold text-sm shadow-lg shadow-blue-900/50">O</div>
+          <h1 className="font-bold text-sm tracking-wide">BreastCancerAI</h1>
+        </div>
+        <button onClick={toggleSidebar} className="p-2 hover:bg-slate-800 rounded-lg transition-colors">
+          {isSidebarOpen ? <Icons.X size={24} /> : <Icons.Dashboard size={24} />}
+        </button>
+      </header>
+
+      {/* Sidebar Overlay (Mobile) */}
+      {isSidebarOpen && (
+        <div
+          className="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-40 md:hidden"
+          onClick={() => setIsSidebarOpen(false)}
+        />
+      )}
+
       {/* Sidebar */}
-      <aside className="w-72 bg-slate-900 text-white flex flex-col fixed h-full z-10">
-        <div className="p-6 border-b border-slate-800">
+      <aside className={clsx(
+        "bg-slate-900 text-white flex flex-col fixed h-full z-50 transition-transform duration-300 md:translate-x-0 md:static md:w-72",
+        isSidebarOpen ? "translate-x-0 w-72" : "-translate-x-full"
+      )}>
+        <div className="p-6 border-b border-slate-800 hidden md:block">
           <div className="flex items-center gap-3">
             <div className="w-10 h-10 bg-blue-600 rounded-xl flex items-center justify-center text-white font-bold text-xl shadow-lg shadow-blue-900/50">O</div>
             <div>
@@ -178,7 +203,10 @@ function DashboardLayout({ user, onLogout }: DashboardLayoutProps) {
             return (
               <button
                 key={item.path}
-                onClick={() => navigate(item.path)}
+                onClick={() => {
+                  navigate(item.path);
+                  setIsSidebarOpen(false);
+                }}
                 className={clsx(
                   "w-full flex items-center gap-3 px-4 py-3 rounded-xl transition-all font-medium text-sm",
                   isActive
@@ -215,8 +243,10 @@ function DashboardLayout({ user, onLogout }: DashboardLayoutProps) {
       </aside>
 
       {/* Main Content */}
-      <main className="flex-1 ml-72 p-8 fade-in">
-        <Outlet />
+      <main className="flex-1 p-4 md:p-8 fade-in h-full overflow-y-auto">
+        <div className="max-w-7xl mx-auto">
+          <Outlet />
+        </div>
       </main>
     </div>
   );
