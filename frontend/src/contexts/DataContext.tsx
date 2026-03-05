@@ -1,6 +1,8 @@
 import React, { createContext, useContext, useState, useEffect, ReactNode } from 'react';
 import { Patient, Report, AnalysisStatus } from '../types';
 
+const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:8000';
+
 interface DataContextType {
     patients: Patient[];
     reports: Report[];
@@ -42,7 +44,7 @@ export const DataProvider: React.FC<{ children: ReactNode; userId?: string }> = 
         const loadData = async () => {
             try {
                 // Fetch History
-                const hRes = await fetch(`http://localhost:8000/history/${userId}`);
+                const hRes = await fetch(`${API_URL}/history/${userId}`);
                 if (hRes.ok) {
                     const data = await hRes.json();
                     setReports(data.map((r: any) => ({
@@ -58,7 +60,7 @@ export const DataProvider: React.FC<{ children: ReactNode; userId?: string }> = 
                 }
 
                 // Fetch Patients
-                const pRes = await fetch(`http://localhost:8000/patients/${userId}`);
+                const pRes = await fetch(`${API_URL}/patients/${userId}`);
                 if (pRes.ok) {
                     const data = await pRes.json();
                     setPatients(data.map((p: any) => ({
@@ -119,7 +121,7 @@ export const DataProvider: React.FC<{ children: ReactNode; userId?: string }> = 
 
     const addPatient = async (p: Omit<Patient, 'registeredDate'>) => {
         try {
-            await fetch(`http://localhost:8000/patients?username=${userId}&patient_id=${p.id}&name=${p.name}&age=${p.age}&contact=${p.contact}&history=${p.history}`, {
+            await fetch(`${API_URL}/patients?username=${userId}&patient_id=${p.id}&name=${p.name}&age=${p.age}&contact=${p.contact}&history=${p.history}`, {
                 method: 'POST'
             });
             setPatients(prev => [...prev, { ...p, registeredDate: new Date().toISOString() }]);
