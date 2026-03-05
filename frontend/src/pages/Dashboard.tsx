@@ -107,8 +107,8 @@ const Dashboard: React.FC<DashboardProps> = ({ userName = 'Doctor' }) => {
                 <p className="text-xs mt-1">Perform an analysis to see statistics</p>
               </div>
             )}
+            )}
           </div>
-          )}
         </div>
       </div>
     </div>

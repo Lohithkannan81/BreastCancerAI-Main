@@ -55,8 +55,8 @@ const PatientRegistration: React.FC = () => {
             </div>
 
             <form onSubmit={handleSubmit} className="bg-white rounded-2xl border border-slate-100 shadow-sm p-8 space-y-6">
-                <div className="grid grid-cols-2 gap-6">
-                    <div className="col-span-2 md:col-span-1">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <div className="col-span-1">
                         <label className="block text-xs font-bold text-slate-400 uppercase tracking-wider mb-1">Patient ID *</label>
                         <div className="relative">
                             <Icons.Profile className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" size={18} />
@@ -72,7 +72,7 @@ const PatientRegistration: React.FC = () => {
                         </div>
                     </div>
 
-                    <div className="col-span-2 md:col-span-1">
+                    <div className="col-span-1">
                         <label className="block text-xs font-bold text-slate-400 uppercase tracking-wider mb-1">Full Name *</label>
                         <input
                             type="text"
@@ -109,7 +109,7 @@ const PatientRegistration: React.FC = () => {
                         />
                     </div>
 
-                    <div className="col-span-2">
+                    <div className="col-span-1 md:col-span-2">
                         <label className="block text-xs font-bold text-slate-400 uppercase tracking-wider mb-1">Medical History / Notes</label>
                         <textarea
                             name="history"
