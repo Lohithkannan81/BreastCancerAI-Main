@@ -161,8 +161,8 @@ function DashboardLayout({ user, onLogout }: DashboardLayoutProps) {
   ];
 
   return (
-    <div className="min-h-screen bg-slate-50 flex flex-col md:flex-row">
-      {/* Mobile Header */}
+    <div className="min-h-screen bg-slate-50">
+      {/* Mobile Header - only on small screens */}
       <header className="md:hidden bg-slate-900 text-white p-4 flex items-center justify-between sticky top-0 z-30 border-b border-slate-800">
         <div className="flex items-center gap-2">
           <div className="w-8 h-8 bg-blue-600 rounded-lg flex items-center justify-center text-white font-bold text-sm shadow-lg shadow-blue-900/50">O</div>
@@ -173,7 +173,7 @@ function DashboardLayout({ user, onLogout }: DashboardLayoutProps) {
         </button>
       </header>
 
-      {/* Sidebar Overlay (Mobile) */}
+      {/* Sidebar Overlay (Mobile only) */}
       {isSidebarOpen && (
         <div
           className="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-40 md:hidden"
@@ -181,12 +181,13 @@ function DashboardLayout({ user, onLogout }: DashboardLayoutProps) {
         />
       )}
 
-      {/* Sidebar */}
+      {/* Sidebar: fixed on both desktop and mobile, but always visible on desktop */}
       <aside className={clsx(
-        "bg-slate-900 text-white flex flex-col fixed h-full z-50 transition-transform duration-300 md:translate-x-0 md:static md:w-72",
-        isSidebarOpen ? "translate-x-0 w-72" : "-translate-x-full"
+        "fixed top-0 left-0 h-full w-72 bg-slate-900 text-white flex flex-col z-50 transition-transform duration-300",
+        "md:translate-x-0",
+        isSidebarOpen ? "translate-x-0" : "-translate-x-full md:translate-x-0"
       )}>
-        <div className="p-6 border-b border-slate-800 hidden md:block">
+        <div className="p-6 border-b border-slate-800">
           <div className="flex items-center gap-3">
             <div className="w-10 h-10 bg-blue-600 rounded-xl flex items-center justify-center text-white font-bold text-xl shadow-lg shadow-blue-900/50">O</div>
             <div>
@@ -242,8 +243,8 @@ function DashboardLayout({ user, onLogout }: DashboardLayoutProps) {
         </div>
       </aside>
 
-      {/* Main Content */}
-      <main className="flex-1 p-4 md:p-8 fade-in h-full overflow-y-auto">
+      {/* Main Content: pushed right by sidebar width on desktop */}
+      <main className="md:ml-72 p-4 md:p-8 min-h-screen fade-in">
         <div className="max-w-7xl mx-auto">
           <Outlet />
         </div>
