@@ -18,4 +18,4 @@ This project uses Deep Learning (CNN) to classify mammogram images as Benign or 
 ## How to Run
 1. Install dependencies: `pip install -r requirements.txt`
 2. Train model: `python train.py`
-3. Run App: `streamlit run app.py`
+3. Run App: `uvicorn main:app --host 0.0.0.0 --port $PORT`
