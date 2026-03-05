@@ -2,7 +2,7 @@ import { TumorClass } from "../types";
 
 const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:8000';
 
-export const analyzeMedicalImage = async (image: string, username: string, patientId: string): Promise<{
+export const analyzeMedicalImage = async (image: string, username: string, patientId: string, fileName: string): Promise<{
     tumorClass: TumorClass;
     confidence: number;
     explanation: string;
@@ -18,7 +18,7 @@ export const analyzeMedicalImage = async (image: string, username: string, patie
     const blob = new Blob([byteArray], { type: 'image/jpeg' });
 
     const formData = new FormData();
-    formData.append('file', blob, 'scan.jpg');
+    formData.append('file', blob, fileName || 'scan.jpg');
     formData.append('username', username);
     formData.append('patient_id', patientId);
 

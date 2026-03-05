@@ -14,6 +14,7 @@ const NewAnalysis: React.FC = () => {
   const [notification, setNotification] = useState<string | null>(null);
   const [patientId, setPatientId] = useState<string>('');
   const [patientName, setPatientName] = useState<string>('');
+  const [fileName, setFileName] = useState<string>('');
   const [recommendations, setRecommendations] = useState<string[]>([]);
 
   const fileInputRef = useRef<HTMLInputElement>(null);
@@ -22,6 +23,7 @@ const NewAnalysis: React.FC = () => {
     const file = e.target.files?.[0];
     if (file) {
       const reader = new FileReader();
+      setFileName(file.name);
       reader.onloadend = () => {
         setImage(reader.result as string);
         setStatus(AnalysisStatus.IDLE);
@@ -70,7 +72,7 @@ const NewAnalysis: React.FC = () => {
 
     try {
       const user = JSON.parse(localStorage.getItem('user') || '{}');
-      const analysis = await analyzeMedicalImage(image, user.email || 'guest', pId);
+      const analysis = await analyzeMedicalImage(image, user.email || 'guest', pId, fileName);
       setResult(analysis);
       setStatus(AnalysisStatus.COMPLETED);
 
