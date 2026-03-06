@@ -9,14 +9,15 @@
 }
 
 @layer components {
+
   /* Apple-inspired sleek glass panels */
   .glass-panel {
-    @apply bg-white/70 backdrop-blur-xl border border-white/40 shadow-glass rounded-3xl;
+    @apply bg-white/70 backdrop-blur-xl border border-white/40 shadow-xl rounded-3xl;
   }
 
   /* Deeply separated glass panels for darkmode/auth pages */
   .glass-panel-dark {
-    @apply bg-slate-900/40 backdrop-blur-2xl border border-slate-700/50 shadow-glass-lg rounded-3xl;
+    @apply bg-slate-900/40 backdrop-blur-2xl border border-slate-700/50 shadow-2xl rounded-3xl;
   }
 
   /* Universal cinematic background */
@@ -48,9 +49,11 @@
   width: 6px;
   height: 6px;
 }
+
 ::-webkit-scrollbar-track {
   background: transparent;
 }
+
 ::-webkit-scrollbar-thumb {
   @apply bg-slate-300 rounded-full hover:bg-slate-400 transition-colors;
 }
@@ -59,6 +62,7 @@
 .no-scrollbar::-webkit-scrollbar {
   display: none;
 }
+
 .no-scrollbar {
   -ms-overflow-style: none;
   scrollbar-width: none;

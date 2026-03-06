@@ -10,7 +10,8 @@ import {
     Stethoscope,
     User as Profile,
     Search,
-    Check
+    Check,
+    Settings
 } from 'lucide-react';
 
 export const Icons = {
@@ -25,5 +26,6 @@ export const Icons = {
     StethoData: Stethoscope,
     Profile: Profile,
     Search: Search,
-    Check: Check
+    Check: Check,
+    Settings: Settings
 };
