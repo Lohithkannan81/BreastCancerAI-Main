@@ -1,11 +1,13 @@
 import React, { useState } from 'react';
+import { GoogleLogin } from '@react-oauth/google';
 
 interface LoginPageProps {
   onLogin: (email: string, password: string) => Promise<{ success: boolean; error?: string }>;
+  onGoogleLogin: (credential: string) => Promise<{ success: boolean; error?: string }>;
   onSignup: () => void;
 }
 
-const LoginPage: React.FC<LoginPageProps> = ({ onLogin, onSignup }) => {
+const LoginPage: React.FC<LoginPageProps> = ({ onLogin, onGoogleLogin, onSignup }) => {
   const [isLoading, setIsLoading] = useState(false);
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
@@ -133,6 +135,34 @@ const LoginPage: React.FC<LoginPageProps> = ({ onLogin, onSignup }) => {
                   <div className="w-6 h-6 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
                 ) : 'Sign In'}
               </button>
+
+              <div className="flex items-center gap-4 py-2">
+                <div className="h-px bg-slate-200 flex-1"></div>
+                <span className="text-xs font-bold text-slate-400 uppercase">Or</span>
+                <div className="h-px bg-slate-200 flex-1"></div>
+              </div>
+
+              <div className="flex justify-center w-full">
+                <GoogleLogin
+                  onSuccess={credentialResponse => {
+                    if (credentialResponse.credential) {
+                      onGoogleLogin(credentialResponse.credential).then(res => {
+                        if (!res.success) {
+                          setError(res.error || 'Google Login failed');
+                        }
+                      });
+                    }
+                  }}
+                  onError={() => {
+                    setError('Google Login window closed or failed');
+                  }}
+                  useOneTap
+                  theme="outline"
+                  size="large"
+                  text="continue_with"
+                  width="100%"
+                />
+              </div>
             </form>
           ) : (
             <form onSubmit={handleForgotSubmit} className="space-y-6">

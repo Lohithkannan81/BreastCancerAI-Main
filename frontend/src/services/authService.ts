@@ -1,3 +1,4 @@
+import { jwtDecode } from 'jwt-decode';
 
 const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:8000';
 
@@ -13,6 +14,38 @@ export const loginUser = async (email: string, password: string): Promise<any> =
         if (!response.ok) {
             const errorData = await response.json().catch(() => ({ detail: 'Invalid credentials' }));
             throw new Error(errorData.detail || 'Login failed');
+        }
+
+        const data = await response.json();
+        return {
+            email: data.username,
+            name: data.fullname,
+            role: data.role,
+            organization: 'Clinical Portal'
+        };
+    } catch (error: any) {
+        if (error.name === 'TypeError' && error.message.includes('fetch')) {
+            throw new Error('Cannot connect to clinical server. Please ensure the backend is running.');
+        }
+        throw error;
+    }
+};
+
+// Login user via Google API
+export const googleLoginUser = async (credential: string): Promise<any> => {
+    try {
+        const decoded: any = jwtDecode(credential);
+        const { email, name } = decoded;
+
+        const response = await fetch(`${API_URL}/google-login`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ email, name: name || email.split('@')[0] })
+        });
+
+        if (!response.ok) {
+            const errorData = await response.json().catch(() => ({ detail: 'Google Login failed' }));
+            throw new Error(errorData.detail || 'Google Login failed');
         }
 
         const data = await response.json();

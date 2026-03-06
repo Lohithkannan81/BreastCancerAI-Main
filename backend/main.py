@@ -56,6 +56,10 @@ class UserSignup(BaseModel):
     fullname: str
     role: str
 
+class GoogleLoginData(BaseModel):
+    email: str
+    name: str
+
 def hash_pw(p): return hashlib.sha256(p.encode()).hexdigest()
 
 @app.post("/login")
@@ -99,6 +103,37 @@ async def signup(user: UserSignup):
     except Exception as e:
         print(f"DEBUG: Signup error: {str(e)}")
         raise HTTPException(status_code=500, detail=f"Registration error: {str(e)}")
+
+@app.post("/google-login")
+async def google_login(data: GoogleLoginData):
+    try:
+        conn = sqlite3.connect(DB_PATH)
+        cursor = conn.cursor()
+        print(f"DEBUG: Attempting google login for email: {data.email}")
+        
+        cursor.execute('SELECT username, fullname, role FROM users WHERE username=?', (data.email,))
+        res = cursor.fetchone()
+        
+        if res:
+            print(f"DEBUG: Google Login successful for existing user {data.email}")
+            conn.close()
+            return {"username": res[0], "fullname": res[1], "role": res[2]}
+        else:
+            print(f"DEBUG: Creating new user via Google Login: {data.email}")
+            import secrets
+            random_pw = hash_pw(secrets.token_hex(16))
+            default_role = "Doctor"
+            
+            cursor.execute('INSERT INTO users VALUES (?,?,?,?)', 
+                           (data.email, random_pw, data.name, default_role))
+            conn.commit()
+            conn.close()
+            print(f"DEBUG: Signup successful for {data.email} via Google")
+            return {"username": data.email, "fullname": data.name, "role": default_role}
+            
+    except Exception as e:
+        print(f"DEBUG: Google Login error: {str(e)}")
+        raise HTTPException(status_code=500, detail=f"Database error during Google Login: {str(e)}")
 
 # --- 3. Prediction Models & Logic ---
 model = None

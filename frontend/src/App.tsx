@@ -54,6 +54,39 @@ function App() {
     }
   };
 
+  const handleGoogleLogin = async (credential: string): Promise<{ success: boolean; error?: string }> => {
+    try {
+      const { googleLoginUser } = await import('./services/authService');
+      const authenticatedUser: any = await googleLoginUser(credential);
+
+      const newUser: User = {
+        id: authenticatedUser.email,
+        name: authenticatedUser.name,
+        email: authenticatedUser.email,
+        role: authenticatedUser.role as UserRole,
+        organization: authenticatedUser.organization
+      };
+
+      console.log('🔐 Google Login successful:', newUser.email);
+      setUser(newUser);
+      localStorage.setItem('user', JSON.stringify(newUser));
+
+      // Save login history
+      const loginHistory = JSON.parse(localStorage.getItem('loginHistory') || '[]');
+      loginHistory.push({
+        email: newUser.email,
+        timestamp: new Date().toISOString(),
+        date: new Date().toLocaleString()
+      });
+      localStorage.setItem('loginHistory', JSON.stringify(loginHistory));
+
+      return { success: true };
+    } catch (error: any) {
+      console.error('Google Login error:', error);
+      return { success: false, error: error.message || 'Google Login failed. Please try again.' };
+    }
+  };
+
   const handleSignup = async (
     name: string,
     email: string,
@@ -86,6 +119,7 @@ function App() {
         <AppRoutes
           user={user}
           onLogin={handleLogin}
+          onGoogleLogin={handleGoogleLogin}
           onSignup={handleSignup}
           onLogout={handleLogout}
         />
@@ -97,6 +131,7 @@ function App() {
 interface AppRoutesProps {
   user: User | null;
   onLogin: (email: string, password: string) => Promise<{ success: boolean; error?: string }>;
+  onGoogleLogin: (credential: string) => Promise<{ success: boolean; error?: string }>;
   onSignup: (
     name: string,
     email: string,
@@ -108,14 +143,14 @@ interface AppRoutesProps {
   onLogout: () => void;
 }
 
-function AppRoutes({ user, onLogin, onSignup, onLogout }: AppRoutesProps) {
+function AppRoutes({ user, onLogin, onGoogleLogin, onSignup, onLogout }: AppRoutesProps) {
   return (
     <Routes>
       <Route path="/" element={
         user ? <Navigate to="/dashboard" replace /> : <LandingPage onStart={() => window.location.href = '/login'} onLogin={() => window.location.href = '/login'} />
       } />
       <Route path="/login" element={
-        user ? <Navigate to="/dashboard" replace /> : <LoginPage onLogin={onLogin} onSignup={() => window.location.href = '/signup'} />
+        user ? <Navigate to="/dashboard" replace /> : <LoginPage onLogin={onLogin} onGoogleLogin={onGoogleLogin} onSignup={() => window.location.href = '/signup'} />
       } />
       <Route path="/signup" element={
         user ? <Navigate to="/dashboard" replace /> : <SignupPage onSignup={onSignup} onLogin={() => window.location.href = '/login'} />
