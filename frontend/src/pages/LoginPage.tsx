@@ -32,12 +32,11 @@ interface LoginPageProps {
 ───────────────────────────────────────────────────────────── */
 interface MascotProps {
   colorClass: 'yellow' | 'teal' | 'pink';
-  name: string;
   stateClass: string;
   mascotId: string; // unique id prefix for pupil elements
 }
 
-const CSSMascot: React.FC<MascotProps> = ({ colorClass, name, stateClass, mascotId }) => (
+const CSSMascot: React.FC<MascotProps> = ({ colorClass, stateClass, mascotId }) => (
   <div className="mascot-wrap">
     <div className={`mascot-body ${colorClass} ${stateClass}`}>
 
@@ -85,8 +84,6 @@ const CSSMascot: React.FC<MascotProps> = ({ colorClass, name, stateClass, mascot
       <div className="mascot-arm left"><div className="mascot-hand" /></div>
       <div className="mascot-arm right"><div className="mascot-hand" /></div>
     </div>
-
-    <p className="mascot-tag">{name}</p>
   </div>
 );
 
@@ -233,18 +230,8 @@ const LoginPage: React.FC<LoginPageProps> = ({ onLogin, onGoogleLogin, onSignup 
             transition={{ duration: 0.6 }}
             className="hidden lg:flex flex-col items-center gap-8"
           >
-            <CSSMascot
-              colorClass="yellow"
-              name="Buddy"
-              stateClass={mascotState}
-              mascotId="m1"
-            />
-            <CSSMascot
-              colorClass="teal"
-              name="Scout"
-              stateClass={mascotState}
-              mascotId="m2"
-            />
+            <CSSMascot colorClass="yellow" stateClass={mascotState} mascotId="m1" />
+            <CSSMascot colorClass="teal"   stateClass={mascotState} mascotId="m2" />
           </motion.div>
         )}
 
@@ -392,12 +379,7 @@ const LoginPage: React.FC<LoginPageProps> = ({ onLogin, onGoogleLogin, onSignup 
             transition={{ duration: 0.6 }}
             className="hidden lg:flex flex-col items-center justify-center"
           >
-            <CSSMascot
-              colorClass="pink"
-              name="Luna"
-              stateClass={mascotState}
-              mascotId="m3"
-            />
+            <CSSMascot colorClass="pink" stateClass={mascotState} mascotId="m3" />
           </motion.div>
         )}
 
