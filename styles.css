@@ -1,0 +1,202 @@
+/* Base styling */
+body {
+  margin: 0;
+  font-family: 'Outfit', sans-serif;
+  background: linear-gradient(135deg, #a8edea 0%, #fed6e3 100%);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: 100vh;
+  overflow: hidden;
+  color: #2d3748;
+}
+
+.container {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  gap: 60px;
+  width: 100%;
+  max-width: 900px;
+  justify-content: center;
+  padding: 20px;
+}
+
+/* Mascots Styling */
+.mascots-container {
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
+  z-index: 10;
+}
+
+.mascot {
+  width: 150px;
+  height: 150px;
+  filter: drop-shadow(0 15px 25px rgba(0,0,0,0.15));
+  animation: float 4s ease-in-out infinite;
+  transition: transform 0.2s ease;
+}
+
+.mascot-hamster { animation-delay: 1.2s; }
+.mascot-blob { animation-delay: 2.4s; }
+
+/* Subtle idle floating animation */
+@keyframes float {
+  0%, 100% { transform: translateY(0px) rotate(0deg); }
+  50% { transform: translateY(-10px) rotate(1deg); }
+}
+
+.pupil {
+  transition: transform 0.1s ease-out; /* Fast reaction for cursor tracking */
+}
+
+/* Smooth transitions for programmatic lookAt calls */
+.smooth-pupil .pupil {
+  transition: transform 0.4s cubic-bezier(0.25, 1, 0.5, 1);
+}
+
+.arm {
+  transition: transform 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+}
+
+/* --- Mascot Eye Covering Animations --- */
+
+/* Robot Arm transformation */
+.mascot-robot.cover-eyes .arm-left { transform: translate(45px, -30px) rotate(30deg); }
+.mascot-robot.cover-eyes .arm-right { transform: translate(-45px, -30px) rotate(-30deg); }
+
+/* Hamster Arm transformation */
+.mascot-hamster.cover-eyes .arm-left { transform: translate(35px, -35px) rotate(45deg); }
+.mascot-hamster.cover-eyes .arm-right { transform: translate(-35px, -35px) rotate(-45deg); }
+
+/* Blob Arm transformation */
+.mascot-blob.cover-eyes .arm-left { transform: translate(40px, -38px) rotate(35deg); }
+.mascot-blob.cover-eyes .arm-right { transform: translate(-40px, -38px) rotate(-35deg); }
+
+
+/* --- Glassmorphism Login Card --- */
+.login-card {
+  background: rgba(255, 255, 255, 0.5);
+  backdrop-filter: blur(25px);
+  -webkit-backdrop-filter: blur(25px);
+  border: 1px solid rgba(255, 255, 255, 0.6);
+  border-radius: 28px;
+  padding: 45px 40px;
+  width: 360px;
+  box-shadow: 0 30px 60px rgba(0, 0, 0, 0.1), inset 0 0 0 1px rgba(255,255,255,0.4);
+  display: flex;
+  flex-direction: column;
+}
+
+.card-header {
+  text-align: center;
+  margin-bottom: 35px;
+}
+
+.card-header h2 {
+  margin: 0;
+  font-size: 30px;
+  font-weight: 700;
+  color: #2d3748;
+  background: linear-gradient(135deg, #1a202c 0%, #4a5568 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+
+.card-header p {
+  margin: 8px 0 0 0;
+  font-size: 15px;
+  color: #4a5568;
+  font-weight: 500;
+}
+
+/* Inputs */
+.input-group {
+  margin-bottom: 24px;
+  position: relative;
+}
+
+.input-group label {
+  display: block;
+  font-size: 14px;
+  font-weight: 600;
+  margin-bottom: 8px;
+  color: #4a5568;
+  margin-left: 4px;
+}
+
+.input-group input {
+  width: 100%;
+  padding: 15px 18px;
+  background: rgba(255, 255, 255, 0.7);
+  border: 2px solid transparent;
+  border-radius: 14px;
+  font-size: 16px;
+  font-family: inherit;
+  color: #1a202c;
+  outline: none;
+  transition: all 0.3s ease;
+  box-sizing: border-box;
+  box-shadow: 0 4px 6px rgba(0,0,0,0.02);
+}
+
+.input-group input:focus {
+  background: rgba(255, 255, 255, 0.95);
+  border-color: #ff9a9e; /* match gradient tone slightly */
+  box-shadow: 0 0 0 4px rgba(255, 154, 158, 0.2);
+}
+
+.input-group input::placeholder {
+  color: #a0aec0;
+}
+
+.password-wrapper {
+  position: relative;
+  display: flex;
+  align-items: center;
+}
+
+.toggle-btn {
+  position: absolute;
+  right: 14px;
+  background: none;
+  border: none;
+  color: #718096;
+  cursor: pointer;
+  padding: 4px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: color 0.2s ease, transform 0.2s ease;
+}
+
+.toggle-btn:hover {
+  color: #ff9a9e;
+  transform: scale(1.1);
+}
+
+.submit-btn {
+  width: 100%;
+  padding: 18px;
+  background: linear-gradient(135deg, #fecfef 0%, #ff9a9e 100%);
+  color: #1a202c;
+  border: none;
+  border-radius: 14px;
+  font-size: 18px;
+  font-weight: 700;
+  font-family: inherit;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  box-shadow: 0 10px 20px rgba(255, 154, 158, 0.3);
+  margin-top: 15px;
+}
+
+.submit-btn:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 15px 25px rgba(255, 154, 158, 0.4);
+}
+
+.submit-btn:active {
+  transform: translateY(1px);
+}

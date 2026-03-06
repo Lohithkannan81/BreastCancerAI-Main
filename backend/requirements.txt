@@ -1,0 +1,6 @@
+fastapi
+uvicorn
+numpy
+Pillow
+python-multipart
+# tensorflow (optional, only needed if .h5 model is uploaded)
