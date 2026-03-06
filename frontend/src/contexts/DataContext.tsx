@@ -1,6 +1,8 @@
 import React, { createContext, useContext, useState, useEffect, ReactNode } from 'react';
 import { Patient, Report, AnalysisStatus } from '../types';
 
+import { getHistory, getPatients as getDbPatients, addPatient as addDbPatient } from '../services/dbService';
+
 const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:8000';
 
 interface DataContextType {
@@ -43,35 +45,29 @@ export const DataProvider: React.FC<{ children: ReactNode; userId?: string }> = 
 
         const loadData = async () => {
             try {
-                // Fetch History
-                const hRes = await fetch(`${API_URL}/history/${userId}`);
-                if (hRes.ok) {
-                    const data = await hRes.json();
-                    setReports(data.map((r: any) => ({
-                        id: r.id,
-                        patientId: r.patient_id,
-                        patientName: 'Clinical Patient',
-                        date: r.timestamp,
-                        tumorClass: r.result,
-                        confidence: r.confidence,
-                        explanation: r.explanation,
-                        status: AnalysisStatus.COMPLETED
-                    })));
-                }
+                // Fetch History via Supabase dbService
+                const historyData = await getHistory(userId);
+                setReports(historyData.map((r: any) => ({
+                    id: String(r.id || Math.floor(Math.random() * 10000)),
+                    patientId: r.patient_id,
+                    patientName: 'Clinical Patient',
+                    date: r.timestamp,
+                    tumorClass: r.result,
+                    confidence: r.confidence,
+                    explanation: r.explanation,
+                    status: AnalysisStatus.COMPLETED
+                })));
 
-                // Fetch Patients
-                const pRes = await fetch(`${API_URL}/patients/${userId}`);
-                if (pRes.ok) {
-                    const data = await pRes.json();
-                    setPatients(data.map((p: any) => ({
-                        id: p.id,
-                        name: p.name,
-                        age: p.age,
-                        contact: p.contact,
-                        history: p.history,
-                        registeredDate: new Date().toISOString()
-                    })));
-                }
+                // Fetch Patients via Supabase dbService
+                const patientsData = await getDbPatients(userId);
+                setPatients(patientsData.map((p: any) => ({
+                    id: p.id,
+                    name: p.name,
+                    age: p.age,
+                    contact: p.contact,
+                    history: p.history,
+                    registeredDate: new Date().toISOString()
+                })));
 
                 setIsInitialized(true);
             } catch (e) {
@@ -107,9 +103,9 @@ export const DataProvider: React.FC<{ children: ReactNode; userId?: string }> = 
             console.error("Failed to save reports - Storage Full", e);
             // Fallback: Try saving without the Base64 images
             try {
-                const lightweightReports = reports.map(r => {
+                const lightweightReports = reports.map((r: Report) => {
                     const { imageUrl, ...rest } = r;
-                    return rest;
+                    return rest as Report;
                 });
                 localStorage.setItem(`reports_${userId}`, JSON.stringify(lightweightReports));
                 console.warn("Saved reports without images due to storage limits.");
@@ -121,10 +117,18 @@ export const DataProvider: React.FC<{ children: ReactNode; userId?: string }> = 
 
     const addPatient = async (p: Omit<Patient, 'registeredDate'>) => {
         try {
-            await fetch(`${API_URL}/patients?username=${userId}&patient_id=${p.id}&name=${p.name}&age=${p.age}&contact=${p.contact}&history=${p.history}`, {
-                method: 'POST'
+            // Save via robust dbService
+            await addDbPatient({
+                id: p.id,
+                name: p.name,
+                age: Number(p.age),
+                contact: p.contact,
+                history: p.history,
+                created_by: userId || ''
             });
-            setPatients(prev => [...prev, { ...p, registeredDate: new Date().toISOString() }]);
+
+            // Update UI immediately
+            setPatients((prev: Patient[]) => [...prev, { ...p, registeredDate: new Date().toISOString() }]);
         } catch (e) {
             console.error("Failed to add patient to API", e);
         }
@@ -139,15 +143,15 @@ export const DataProvider: React.FC<{ children: ReactNode; userId?: string }> = 
             date: new Date().toISOString().split('T')[0],
             status: AnalysisStatus.COMPLETED
         };
-        setReports(prev => [newReport, ...prev]);
+        setReports((prev: Report[]) => [newReport, ...prev]);
     };
 
     const getPatientReports = (patientId: string) => {
-        return reports.filter(r => r.patientId === patientId);
+        return reports.filter((r: Report) => r.patientId === patientId);
     };
 
     const getPatient = (patientId: string) => {
-        return patients.find(p => p.id === patientId);
+        return patients.find((p: Patient) => p.id === patientId);
     };
 
     return (
