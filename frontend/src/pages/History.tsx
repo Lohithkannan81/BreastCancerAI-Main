@@ -108,87 +108,93 @@ const History: React.FC = () => {
   };
 
   return (
-    <div className="fade-in space-y-6 relative">
+    <div className="fade-in-up space-y-6 relative" style={{ animationDuration: '0.6s' }}>
       {/* Toast Notification */}
       {notification && (
-        <div className="fixed top-4 right-4 bg-blue-600 text-white px-6 py-3 rounded-xl shadow-lg z-50 animate-pulse">
-          {notification}
+        <div className="fixed top-6 right-6 bg-slate-900 border border-slate-700 text-white px-6 py-4 rounded-2xl shadow-2xl z-50 animate-fade-in-up flex items-center gap-3">
+          <div className="w-2 h-2 rounded-full bg-blue-500 animate-pulse"></div>
+          <span className="font-medium text-sm">{notification}</span>
         </div>
       )}
 
       {/* Report Modal */}
       {selectedReport && (
-        <div className="fixed inset-0 bg-slate-900/50 backdrop-blur-sm z-50 flex items-center justify-center p-4" onClick={() => setSelectedReport(null)}>
-          <div className="bg-white rounded-2xl shadow-2xl max-w-lg w-full p-6 animate-in slide-in-from-bottom-4" onClick={e => e.stopPropagation()}>
-            <div className="flex justify-between items-start mb-6">
+        <div className="fixed inset-0 bg-slate-900/40 backdrop-blur-md z-50 flex items-center justify-center p-4 transition-opacity" onClick={() => setSelectedReport(null)}>
+          <div className="glass-panel max-w-lg w-full p-8 animate-in zoom-in-95 duration-300 shadow-2xl" onClick={e => e.stopPropagation()}>
+            <div className="flex justify-between items-start mb-8 border-b border-slate-100 pb-4">
               <div>
-                <h3 className="text-xl font-bold text-slate-900">Analysis Details</h3>
-                <p className="text-sm text-slate-500">ID: {selectedReport.id}</p>
+                <h3 className="text-xl font-bold text-slate-800 tracking-tight">Analysis Details</h3>
+                <p className="text-xs font-mono text-slate-500 mt-1">ID: {selectedReport.id}</p>
               </div>
-              <button onClick={() => setSelectedReport(null)} className="p-2 hover:bg-slate-100 rounded-full transition-colors">
-                <Icons.X size={20} className="text-slate-400" />
+              <button onClick={() => setSelectedReport(null)} className="p-2 bg-slate-50 hover:bg-slate-200 rounded-full transition-colors text-slate-500 hover:text-slate-800">
+                <Icons.X size={18} />
               </button>
             </div>
 
-            <div className="space-y-4">
-              <div className="bg-slate-50 p-4 rounded-xl">
-                <div className="grid grid-cols-2 gap-4 text-sm">
+            <div className="space-y-6">
+              <div className="bg-slate-50/50 p-5 rounded-2xl border border-slate-100">
+                <div className="grid grid-cols-2 gap-y-4 gap-x-6 text-sm">
                   <div>
-                    <span className="block font-bold text-slate-400 text-xs uppercase tracking-wider">Patient</span>
-                    <span className="font-medium text-slate-900">{selectedReport.patientName}</span>
-                    <span className="block text-xs text-slate-400">({selectedReport.patientId})</span>
+                    <span className="block font-bold text-slate-400 text-[10px] uppercase tracking-widest mb-1">Patient</span>
+                    <span className="font-medium text-slate-800">{selectedReport.patientName}</span>
+                    <span className="block text-xs text-slate-500 mt-0.5">{selectedReport.patientId}</span>
                   </div>
                   <div>
-                    <span className="block font-bold text-slate-400 text-xs uppercase tracking-wider">Date</span>
-                    <span className="font-medium text-slate-900">{selectedReport.date}</span>
+                    <span className="block font-bold text-slate-400 text-[10px] uppercase tracking-widest mb-1">Date</span>
+                    <span className="font-medium text-slate-800">{selectedReport.date}</span>
                   </div>
-                  <div>
-                    <span className="block font-bold text-slate-400 text-xs uppercase tracking-wider">Confidence</span>
-                    <span className="font-medium text-slate-900">{selectedReport.confidence.toFixed(3)}%</span>
+                  <div className="col-span-2 pt-2 border-t border-slate-200/50">
+                    <span className="block font-bold text-slate-400 text-[10px] uppercase tracking-widest mb-2">Confidence Score</span>
+                    <div className="flex items-center gap-3">
+                      <div className="flex-1 h-2 bg-slate-200 rounded-full overflow-hidden">
+                        <div className={`h-full ${selectedReport.tumorClass === TumorClass.MALIGNANT ? 'bg-red-500' : 'bg-green-500'}`} style={{ width: `${selectedReport.confidence}%` }}></div>
+                      </div>
+                      <span className="font-bold text-slate-800">{selectedReport.confidence.toFixed(1)}%</span>
+                    </div>
                   </div>
                 </div>
               </div>
 
-              <div className={`p-4 rounded-xl border ${selectedReport.tumorClass === TumorClass.MALIGNANT ? 'bg-red-50 border-red-100' : 'bg-green-50 border-green-100'}`}>
-                <span className="block font-bold text-slate-400 text-xs uppercase tracking-wider mb-1">Classification</span>
-                <span className={`text-lg font-bold ${selectedReport.tumorClass === TumorClass.MALIGNANT ? 'text-red-700' : 'text-green-700'}`}>
+              <div className={`p-5 rounded-2xl border ${selectedReport.tumorClass === TumorClass.MALIGNANT ? 'bg-rose-50 border-rose-100' : 'bg-emerald-50 border-emerald-100'}`}>
+                <span className="block font-bold text-slate-400 text-[10px] uppercase tracking-widest mb-1">Classification</span>
+                <span className={`text-xl font-black tracking-tight ${selectedReport.tumorClass === TumorClass.MALIGNANT ? 'text-rose-700' : 'text-emerald-700'}`}>
                   {selectedReport.tumorClass}
                 </span>
-                <p className="text-sm text-slate-600 mt-2">
+                <p className="text-sm text-slate-700 mt-2 font-medium">
                   {selectedReport.tumorClass === TumorClass.MALIGNANT
                     ? 'Automated analysis detected patterns consistent with malignancy.'
                     : 'No malignant patterns detected in the analyzed sample.'}
                 </p>
                 {selectedReport.explanation && (
-                  <p className="text-xs text-slate-500 mt-2 italic border-t border-slate-200 pt-2">
-                    "{selectedReport.explanation.substring(0, 100)}..."
+                  <p className="text-xs text-slate-500 mt-3 italic border-t border-slate-200/50 pt-3 leading-relaxed">
+                    "{selectedReport.explanation.substring(0, 150)}..."
                   </p>
                 )}
               </div>
             </div>
 
-            <div className="flex gap-3 mt-6">
-              <button onClick={() => handleDownloadPDF(selectedReport)} className="flex-1 bg-slate-900 text-white py-3 rounded-xl font-bold hover:bg-slate-800 transition-all flex items-center justify-center gap-2 text-sm">
-                <Icons.Reports size={18} />
-                Download Full PDF
-              </button>
-              <button onClick={() => setSelectedReport(null)} className="flex-1 bg-white border border-slate-200 text-slate-700 py-3 rounded-xl font-bold hover:bg-slate-50 transition-all text-sm">
+            <div className="flex gap-3 mt-8">
+              <button onClick={() => setSelectedReport(null)} className="btn-secondary flex-[0.5]">
                 Close
+              </button>
+              <button onClick={() => handleDownloadPDF(selectedReport)} className="btn-primary flex-1 py-4 text-sm">
+                <Icons.Reports size={18} />
+                Download PDF
               </button>
             </div>
           </div>
         </div>
       )}
 
-      <div className="flex justify-between items-center">
+      <div className="flex justify-between items-center sm:items-end flex-col sm:flex-row gap-4 mb-2">
         <div>
-          <h1 className="text-2xl font-bold text-slate-900">Analysis Archive</h1>
-          <p className="text-slate-500">History of all diagnostic scans performed by your team.</p>
+          <h1 className="text-3xl font-bold text-slate-800 tracking-tight">Analysis Archive</h1>
+          <p className="text-slate-500 font-light mt-1">History of all diagnostic scans performed by your team.</p>
         </div>
-        <div className="flex gap-2 relative">
+        <div className="flex gap-2 relative z-10 w-full sm:w-auto">
           <button
             onClick={handleExportCSV}
-            className="px-4 py-2 bg-blue-600 text-white rounded-lg text-sm font-medium hover:bg-blue-700 transition-all shadow-lg shadow-blue-200 flex items-center gap-2"
+            className="w-full sm:w-auto px-5 py-2.5 bg-white border border-slate-200 text-slate-700 rounded-xl text-sm font-semibold hover:bg-slate-50 hover:text-slate-900 transition-all shadow-sm flex items-center justify-center gap-2"
           >
             <Icons.Reports size={16} />
             Export CSV
@@ -196,65 +202,69 @@ const History: React.FC = () => {
         </div>
       </div>
 
-      <div className="bg-white rounded-2xl border border-slate-100 shadow-sm overflow-x-auto overflow-y-hidden">
-        <table className="w-full text-left border-collapse min-w-[800px]">
-          <thead>
-            <tr className="bg-slate-50 border-b border-slate-100">
-              <th className="px-6 py-4 text-xs font-bold text-slate-400 uppercase tracking-widest">Analysis ID</th>
-              <th className="px-6 py-4 text-xs font-bold text-slate-400 uppercase tracking-widest">Patient</th>
-              <th className="px-6 py-4 text-xs font-bold text-slate-400 uppercase tracking-widest">Date</th>
-              <th className="px-6 py-4 text-xs font-bold text-slate-400 uppercase tracking-widest">Result</th>
-              <th className="px-6 py-4 text-xs font-bold text-slate-400 uppercase tracking-widest">Confidence</th>
-              <th className="px-6 py-4 text-xs font-bold text-slate-400 uppercase tracking-widest">Action</th>
-            </tr>
-          </thead>
-          <tbody className="divide-y divide-slate-50">
-            {reports.length > 0 ? (
-              reports.map((row) => (
-                <tr key={row.id} className="hover:bg-slate-50 transition-colors group">
-                  <td className="px-6 py-4 font-medium text-slate-900">{row.id}</td>
-                  <td className="px-6 py-4 text-slate-500">
-                    <p className="font-medium text-slate-700">{row.patientName}</p>
-                    <p className="text-xs">{row.patientId}</p>
-                  </td>
-                  <td className="px-6 py-4 text-slate-500">{row.date}</td>
-                  <td className="px-6 py-4">
-                    <span className={`text-xs font-bold px-3 py-1 rounded-full ${row.tumorClass.toUpperCase() === 'MALIGNANT' ? 'text-red-700 bg-red-100' : 'text-green-700 bg-green-100'
-                      }`}>
-                      {row.tumorClass}
-                    </span>
-                  </td>
-                  <td className="px-6 py-4">
-                    <div className="flex items-center gap-2">
-                      <div className="w-12 h-1.5 bg-slate-100 rounded-full overflow-hidden">
-                        <div className={`h-full ${row.tumorClass.toUpperCase() === 'MALIGNANT' ? 'bg-red-500' : 'bg-green-500'}`} style={{ width: `${row.confidence}%` }}></div>
+      <div className="glass-panel overflow-hidden border border-slate-200/60 bg-white/60 backdrop-blur-md">
+        <div className="overflow-x-auto custom-scrollbar">
+          <table className="w-full text-left border-collapse min-w-[800px]">
+            <thead>
+              <tr className="bg-slate-50/80 border-b border-slate-100">
+                <th className="px-6 py-4 text-[10px] font-bold text-slate-500 uppercase tracking-widest whitespace-nowrap">Analysis ID</th>
+                <th className="px-6 py-4 text-[10px] font-bold text-slate-500 uppercase tracking-widest">Patient Details</th>
+                <th className="px-6 py-4 text-[10px] font-bold text-slate-500 uppercase tracking-widest">Date Processed</th>
+                <th className="px-6 py-4 text-[10px] font-bold text-slate-500 uppercase tracking-widest">Diagnosis</th>
+                <th className="px-6 py-4 text-[10px] font-bold text-slate-500 uppercase tracking-widest">AI Confidence</th>
+                <th className="px-6 py-4 text-[10px] font-bold text-slate-500 uppercase tracking-widest text-right">Action</th>
+              </tr>
+            </thead>
+            <tbody className="divide-y divide-slate-100/60">
+              {reports.length > 0 ? (
+                reports.map((row) => (
+                  <tr key={row.id} className="hover:bg-blue-50/30 transition-colors group">
+                    <td className="px-6 py-5 font-mono text-xs text-slate-500">{row.id.substring(0, 8)}...</td>
+                    <td className="px-6 py-5">
+                      <p className="font-bold text-slate-800 text-sm">{row.patientName}</p>
+                      <p className="text-[11px] text-slate-500 mt-0.5">{row.patientId}</p>
+                    </td>
+                    <td className="px-6 py-5 text-slate-600 text-sm font-medium">{row.date}</td>
+                    <td className="px-6 py-5">
+                      <span className={`text-[10px] font-bold px-3 py-1.5 rounded-lg uppercase tracking-widest ${row.tumorClass.toUpperCase() === 'MALIGNANT' ? 'text-rose-700 bg-rose-100 shadow-[inset_0_0_0_1px_rgba(225,29,72,0.2)]' : 'text-emerald-700 bg-emerald-100 shadow-[inset_0_0_0_1px_rgba(52,211,153,0.2)]'
+                        }`}>
+                        {row.tumorClass}
+                      </span>
+                    </td>
+                    <td className="px-6 py-5">
+                      <div className="flex items-center gap-3">
+                        <div className="w-16 h-1.5 bg-slate-200 rounded-full overflow-hidden">
+                          <div className={`h-full ${row.tumorClass.toUpperCase() === 'MALIGNANT' ? 'bg-rose-500' : 'bg-emerald-500'}`} style={{ width: `${row.confidence}%` }}></div>
+                        </div>
+                        <span className="text-sm font-bold text-slate-700">{row.confidence.toFixed(1)}%</span>
                       </div>
-                      <span className="text-sm font-bold text-slate-900">{row.confidence}%</span>
+                    </td>
+                    <td className="px-6 py-5 text-right">
+                      <button
+                        onClick={() => setSelectedReport(row)}
+                        className="p-2.5 text-blue-600 bg-blue-50 hover:bg-blue-600 hover:text-white rounded-xl transition-all shadow-sm"
+                      >
+                        <Icons.Reports size={18} />
+                      </button>
+                    </td>
+                  </tr>
+                ))
+              ) : (
+                <tr>
+                  <td colSpan={6} className="px-6 py-16 text-center text-slate-400/80">
+                    <div className="flex flex-col items-center gap-3">
+                      <div className="p-4 bg-slate-50 rounded-full mb-2">
+                        <Icons.Reports size={32} className="opacity-40" />
+                      </div>
+                      <p className="font-bold tracking-wide text-slate-500">No archival records found.</p>
+                      <p className="text-xs font-light">Uploaded analysis reports will appear here automatically.</p>
                     </div>
                   </td>
-                  <td className="px-6 py-4">
-                    <button
-                      onClick={() => setSelectedReport(row)}
-                      className="p-2 text-blue-600 hover:bg-blue-50 rounded-lg transition-colors border border-transparent hover:border-blue-100"
-                    >
-                      <Icons.Reports size={18} />
-                    </button>
-                  </td>
                 </tr>
-              ))
-            ) : (
-              <tr>
-                <td colSpan={7} className="px-6 py-12 text-center text-slate-400">
-                  <div className="flex flex-col items-center gap-2">
-                    <Icons.Reports size={32} className="opacity-20" />
-                    <p>No records found.</p>
-                    <p className="text-xs">Uploaded analysis reports will appear here.</p>
-                  </div>
-                </td>
-              </tr>
-            )}
-          </tbody>
-        </table>
+              )}
+            </tbody>
+          </table>
+        </div>
       </div>
     </div>
   );

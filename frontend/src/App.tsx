@@ -210,28 +210,29 @@ function DashboardLayout({ user, onLogout }: DashboardLayoutProps) {
       {/* Sidebar Overlay (Mobile only) */}
       {isSidebarOpen && (
         <div
-          className="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-40 md:hidden"
+          className="fixed inset-0 bg-slate-900/60 backdrop-blur-md z-40 md:hidden transition-opacity"
           onClick={() => setIsSidebarOpen(false)}
         />
       )}
 
       {/* Sidebar: fixed on both desktop and mobile, but always visible on desktop */}
       <aside className={clsx(
-        "fixed top-0 left-0 h-full w-72 bg-slate-900 text-white flex flex-col z-50 transition-transform duration-300",
-        "md:translate-x-0",
+        "fixed top-0 left-0 h-full w-72 bg-slate-900/95 backdrop-blur-2xl text-white flex flex-col z-50 transition-all duration-300 ease-[cubic-bezier(0.16,1,0.3,1)] border-r border-white/10 shadow-2xl",
+        "md:translate-x-0 cursor-default",
         isSidebarOpen ? "translate-x-0" : "-translate-x-full md:translate-x-0"
       )}>
-        <div className="p-6 border-b border-slate-800">
+        <div className="p-6 border-b border-white/5 relative overflow-hidden">
+          <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-blue-400 via-indigo-500 to-purple-500 opacity-80"></div>
           <div className="flex items-center gap-3">
             <div>
-              <h1 className="font-bold text-lg tracking-wide">BreastCancerAI</h1>
-              <p className="text-xs text-slate-400 font-medium">Clinical AI Assistant</p>
+              <h1 className="font-bold text-lg tracking-tight bg-gradient-to-r from-white to-slate-400 bg-clip-text text-transparent">BreastCancerAI</h1>
+              <p className="text-[10px] text-slate-400 font-semibold tracking-widest uppercase mt-1">Clinical AI Assistant</p>
             </div>
           </div>
         </div>
 
-        <nav className="flex-1 p-4 space-y-2 overflow-y-auto">
-          <div className="text-xs font-bold text-slate-500 uppercase tracking-widest px-4 mb-2 mt-4">Platform</div>
+        <nav className="flex-1 p-4 space-y-1.5 overflow-y-auto custom-scrollbar">
+          <div className="text-[10px] font-bold text-slate-500/80 uppercase tracking-widest px-4 mb-3 mt-2">Platform Tools</div>
           {navItems.map((item) => {
             const isActive = location.pathname === item.path;
             return (
@@ -242,35 +243,35 @@ function DashboardLayout({ user, onLogout }: DashboardLayoutProps) {
                   setIsSidebarOpen(false);
                 }}
                 className={clsx(
-                  "w-full flex items-center gap-3 px-4 py-3 rounded-xl transition-all font-medium text-sm",
+                  "w-full flex items-center gap-3 px-4 py-3 rounded-2xl transition-all duration-300 font-medium text-sm border border-transparent",
                   isActive
-                    ? "bg-blue-600 text-white shadow-lg shadow-blue-900/20"
-                    : "text-slate-400 hover:bg-slate-800 hover:text-white"
+                    ? "bg-white/10 text-white shadow-lg border-white/10 backdrop-blur-md"
+                    : "text-slate-400 hover:bg-white/5 hover:text-white"
                 )}
               >
-                <item.icon size={20} />
+                <item.icon size={20} className={isActive ? "text-blue-400" : "opacity-70"} />
                 {item.label}
               </button>
             );
           })}
         </nav>
 
-        <div className="p-4 border-t border-slate-800">
+        <div className="p-4 border-t border-white/5 bg-black/20">
           <button
             onClick={onLogout}
-            className="w-full flex items-center gap-3 px-4 py-3 rounded-xl text-slate-400 hover:bg-slate-800 hover:text-red-400 transition-colors font-medium text-sm"
+            className="w-full flex items-center gap-3 px-4 py-3 rounded-xl text-slate-400 hover:bg-red-500/10 hover:text-red-400 transition-colors font-medium text-sm group"
           >
-            <Icons.X size={20} />
+            <Icons.X size={20} className="group-hover:rotate-90 transition-transform duration-300" />
             Sign Out
           </button>
 
-          <div className="mt-4 flex items-center gap-3 px-4">
-            <div className="w-10 h-10 rounded-full bg-blue-900 border border-blue-700 flex items-center justify-center text-blue-100 font-bold">
+          <div className="mt-4 flex items-center gap-3 px-4 py-2 rounded-xl hover:bg-white/5 transition-colors cursor-pointer group">
+            <div className="w-10 h-10 rounded-full bg-gradient-to-tr from-blue-600 to-indigo-500 flex items-center justify-center text-white font-bold shadow-md shadow-blue-900/50 group-hover:scale-105 transition-transform duration-300">
               {user?.name?.charAt(0).toUpperCase() || 'U'}
             </div>
             <div className="overflow-hidden">
-              <p className="text-sm font-bold text-white truncate">{user?.name || 'User'}</p>
-              <p className="text-xs text-slate-400 truncate">{user?.organization || 'Clinical'}</p>
+              <p className="text-sm font-bold text-slate-200 truncate group-hover:text-white transition-colors">{user?.name || 'User'}</p>
+              <p className="text-xs text-slate-500 truncate">{user?.organization || 'Clinical'}</p>
             </div>
           </div>
         </div>
@@ -278,7 +279,7 @@ function DashboardLayout({ user, onLogout }: DashboardLayoutProps) {
 
       {/* Main Content: pushed right by sidebar width on desktop */}
       <main className="md:ml-72 p-4 md:p-8 min-h-screen fade-in">
-        <div className="max-w-7xl mx-auto">
+        <div className="max-w-7xl mx-auto pt-6 md:pt-2">
           <Outlet />
         </div>
       </main>

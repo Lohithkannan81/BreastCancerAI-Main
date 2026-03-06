@@ -187,42 +187,43 @@ const NewAnalysis: React.FC = () => {
 
 
   return (
-    <div className="fade-in max-w-5xl mx-auto space-y-8 pb-12 relative">
+    <div className="fade-in-up max-w-5xl mx-auto space-y-8 pb-12 relative" style={{ animationDuration: '0.6s' }}>
       {/* Toast Notification */}
       {notification && (
-        <div className="fixed top-4 right-4 bg-blue-600 text-white px-6 py-3 rounded-xl shadow-lg z-50 animate-pulse">
-          {notification}
+        <div className="fixed top-6 right-6 bg-slate-900 border border-slate-700 text-white px-6 py-4 rounded-2xl shadow-2xl z-50 animate-fade-in-up flex items-center gap-3">
+          <div className="w-2 h-2 rounded-full bg-blue-500 animate-pulse"></div>
+          <span className="font-medium text-sm">{notification}</span>
         </div>
       )}
-      <div className="flex justify-between items-end">
+      <div className="flex justify-between items-end relative z-10">
         <div>
-          <h1 className="text-2xl font-bold text-slate-900">New Diagnostic Analysis</h1>
-          <p className="text-slate-500">Upload high-resolution histopathology or mammography scans.</p>
+          <h1 className="text-3xl font-bold text-slate-800 tracking-tight">Diagnostic Analysis</h1>
+          <p className="text-slate-500 font-light mt-1">Upload high-resolution histopathology or mammography scans for AI evaluation.</p>
         </div>
         {image && (
           <button
             onClick={reset}
-            className="text-sm font-medium text-slate-500 hover:text-red-500 transition-colors"
+            className="text-xs font-bold uppercase tracking-widest text-slate-400 hover:text-red-500 transition-colors bg-white/50 px-4 py-2 rounded-lg hover:bg-red-50"
           >
-            Clear and Start Over
+            Start Over
           </button>
         )}
       </div>
 
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 relative z-10">
         {/* Left: Upload and Preview */}
         <div className="lg:col-span-2 space-y-6">
           {!image ? (
             <div
               onClick={() => fileInputRef.current?.click()}
-              className="border-2 border-dashed border-slate-300 bg-white rounded-2xl p-12 text-center hover:border-blue-500 hover:bg-blue-50 transition-all cursor-pointer group"
+              className="glass-panel border-2 border-dashed border-slate-300/60 bg-white/40 p-16 text-center hover:border-blue-400 hover:bg-blue-50/30 transition-all duration-500 cursor-pointer group shadow-sm hover:shadow-xl"
             >
-              <div className="w-16 h-16 bg-slate-50 text-slate-400 rounded-full flex items-center justify-center mx-auto mb-6 group-hover:bg-blue-100 group-hover:text-blue-600 transition-all">
-                <Icons.Cloud />
+              <div className="w-20 h-20 bg-white shadow-sm text-slate-400 rounded-full flex items-center justify-center mx-auto mb-8 group-hover:scale-110 group-hover:text-blue-500 transition-all duration-500 group-hover:shadow-blue-200/50">
+                <Icons.Cloud size={32} />
               </div>
-              <h3 className="text-lg font-bold text-slate-800 mb-2">Drag & drop medical images here</h3>
-              <p className="text-slate-500 text-sm mb-6">Supports JPG, PNG, DICOM (max 25MB)</p>
-              <button className="bg-slate-900 text-white px-6 py-2 rounded-lg font-semibold hover:bg-slate-800 transition-all">Browse Files</button>
+              <h3 className="text-xl font-bold text-slate-800 mb-3 tracking-tight">Select medical imaging file</h3>
+              <p className="text-slate-500 text-sm mb-8 font-light max-w-sm mx-auto">Supports high-resolution JPG, PNG, and DICOM formats up to 25MB.</p>
+              <button className="bg-slate-900 text-white px-8 py-3 rounded-xl font-semibold hover:bg-blue-600 transition-colors shadow-lg shadow-slate-200">Browse Files</button>
               <input
                 type="file"
                 ref={fileInputRef}
@@ -232,14 +233,20 @@ const NewAnalysis: React.FC = () => {
               />
             </div>
           ) : (
-            <div className="bg-white rounded-2xl border border-slate-100 shadow-sm p-4">
-              <div className="relative aspect-video bg-slate-100 rounded-xl overflow-hidden">
-                <img src={image} className="w-full h-full object-contain" alt="Scan Preview" />
+            <div className="glass-panel p-2 shadow-lg">
+              <div className="relative aspect-video bg-slate-900 rounded-2xl overflow-hidden border border-slate-800/50">
+                <img src={image} className={`w-full h-full object-contain transition-all duration-1000 ${status === AnalysisStatus.ANALYZING ? 'scale-105 opacity-50 blur-sm' : 'scale-100'}`} alt="Scan Preview" />
                 {status === AnalysisStatus.ANALYZING && (
-                  <div className="absolute inset-0 bg-white/60 backdrop-blur-sm flex flex-col items-center justify-center">
-                    <div className="w-12 h-12 border-4 border-blue-600 border-t-transparent rounded-full animate-spin mb-4"></div>
-                    <p className="text-blue-800 font-bold animate-pulse">Running Neural Networks...</p>
-                    <p className="text-blue-600 text-xs mt-2 uppercase tracking-widest">Scanning morphological patterns</p>
+                  <div className="absolute inset-0 flex flex-col items-center justify-center bg-slate-900/40 backdrop-blur-sm">
+                    <div className="relative w-24 h-24 mb-6">
+                      {/* Scanning animation rings */}
+                      <div className="absolute inset-0 border-4 border-blue-500/30 rounded-full animate-ping"></div>
+                      <div className="absolute inset-2 border-4 border-blue-400/50 rounded-full animate-spin" style={{ animationDuration: '3s' }}></div>
+                      <div className="absolute inset-4 border-4 border-t-blue-500 border-r-transparent border-b-purple-500 border-l-transparent rounded-full animate-spin" style={{ animationDirection: 'reverse', animationDuration: '1.5s' }}></div>
+                      <div className="absolute inset-0 flex items-center justify-center text-white"><Icons.Microscope size={28} /></div>
+                    </div>
+                    <p className="text-white font-bold tracking-wide text-lg drop-shadow-lg">Processing Neural Networks</p>
+                    <p className="text-blue-300 text-[10px] mt-2 font-bold uppercase tracking-widest animate-pulse">Analyzing morphological structures</p>
                   </div>
                 )}
               </div>
@@ -248,57 +255,70 @@ const NewAnalysis: React.FC = () => {
 
           {/* Result Section */}
           {result && status === AnalysisStatus.COMPLETED && (
-            <div className={`p-4 md:p-8 rounded-2xl border-2 transition-all-custom fade-in ${result.tumorClass.toUpperCase() === 'MALIGNANT'
-              ? 'bg-red-50 border-red-200'
-              : 'bg-green-50 border-green-200'
+            <div className={`p-8 rounded-3xl border transition-all duration-700 fade-in-up shadow-xl relative overflow-hidden group ${result.tumorClass.toUpperCase() === 'MALIGNANT'
+              ? 'bg-gradient-to-br from-rose-50 to-white border-rose-100'
+              : 'bg-gradient-to-br from-emerald-50 to-white border-emerald-100'
               }`}>
-              <div className="flex flex-col sm:flex-row items-start justify-between mb-6 gap-4">
+              {/* Decorative background glow based on result */}
+              <div className={`absolute -top-24 -right-24 w-64 h-64 rounded-full blur-3xl opacity-40 mix-blend-multiply pointer-events-none transition-all duration-1000 ${result.tumorClass.toUpperCase() === 'MALIGNANT' ? 'bg-rose-400 group-hover:bg-rose-500' : 'bg-emerald-400 group-hover:bg-emerald-500'}`}></div>
+
+              <div className="flex flex-col sm:flex-row items-start justify-between mb-8 gap-4 relative z-10">
                 <div>
-                  <h3 className={`text-lg font-bold ${result.tumorClass.toUpperCase() === 'MALIGNANT' ? 'text-red-900' : 'text-green-900'
+                  <h3 className={`text-2xl font-black tracking-tight ${result.tumorClass.toUpperCase() === 'MALIGNANT' ? 'text-rose-700' : 'text-emerald-700'
                     }`}>
-                    Prediction: {result.tumorClass}
+                    {result.tumorClass.toUpperCase()}
                   </h3>
-                  <p className={`${result.tumorClass.toUpperCase() === 'MALIGNANT' ? 'text-red-700' : 'text-green-700'
-                    } text-sm mt-1`}>
+                  <p className={`${result.tumorClass.toUpperCase() === 'MALIGNANT' ? 'text-rose-900/70' : 'text-emerald-900/70'
+                    } text-sm mt-2 font-medium max-w-md leading-relaxed`}>
                     {result.tumorClass.toUpperCase() === 'MALIGNANT'
-                      ? 'Malignant patterns detected. Further clinical evaluation recommended.'
-                      : 'No malignant indicators detected. Normal tissue morphology observed.'}
+                      ? 'Critical pathological markers detected. Immediate clinical review and biopsy correlation strongly advised.'
+                      : 'No indications of malignant cellular structures. Benign morphology observed across the tissue sample.'}
                   </p>
                 </div>
-                <div className="text-left sm:text-right">
-                  <span className="text-2xl sm:text-3xl font-black text-slate-900">{result.confidence.toFixed(3)}%</span>
-                  <p className="text-[10px] text-slate-500 font-bold uppercase tracking-wider">Confidence Score</p>
+                <div className="text-left sm:text-right bg-white/60 backdrop-blur-md px-6 py-4 rounded-2xl shadow-sm border border-white">
+                  <span className={`text-4xl font-black tracking-tighter ${result.tumorClass.toUpperCase() === 'MALIGNANT' ? 'text-rose-600' : 'text-emerald-600'}`}>{result.confidence.toFixed(1)}%</span>
+                  <p className="text-[9px] text-slate-400 font-bold uppercase tracking-widest mt-1">AI Confidence</p>
                 </div>
               </div>
 
-              <div className="w-full h-3 bg-slate-200 rounded-full overflow-hidden mb-6">
+              <div className="w-full h-4 bg-slate-100/80 rounded-full overflow-hidden mb-8 shadow-inner relative z-10 border border-slate-200/50">
                 <div
-                  className={`h-full transition-all duration-1000 ${result.tumorClass.toUpperCase() === 'MALIGNANT' ? 'bg-red-600' : 'bg-green-600'
+                  className={`h-full transition-all duration-1000 ease-[cubic-bezier(0.16,1,0.3,1)] relative overflow-hidden ${result.tumorClass.toUpperCase() === 'MALIGNANT' ? 'bg-gradient-to-r from-rose-500 to-rose-400' : 'bg-gradient-to-r from-emerald-500 to-emerald-400'
                     }`}
                   style={{ width: `${result.confidence}%` }}
-                ></div>
+                >
+                  <div className="absolute inset-0 bg-white/20 w-full h-full skew-x-12 translate-x-[-100%] animate-[shimmer_2s_infinite]"></div>
+                </div>
               </div>
 
-              <div className="bg-white/80 p-4 rounded-xl border border-slate-100 mb-6">
-                <h4 className="text-xs font-bold text-slate-500 uppercase tracking-widest mb-2">AI Findings</h4>
-                <p className="text-slate-700 text-sm leading-relaxed italic">{result.explanation}</p>
+              <div className="glass-panel p-6 mb-6 relative z-10">
+                <h4 className="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-3 flex items-center gap-2">
+                  <Icons.Analysis size={14} className={result.tumorClass.toUpperCase() === 'MALIGNANT' ? 'text-rose-500' : 'text-emerald-500'} />
+                  Diagnostic Analysis
+                </h4>
+                <p className="text-slate-700 text-sm leading-relaxed font-medium">{result.explanation}</p>
               </div>
 
               {recommendations.length > 0 && result.tumorClass.toUpperCase() === 'MALIGNANT' && (
-                <div className="bg-white/80 p-4 rounded-xl border border-slate-100 mb-6">
-                  <h4 className="text-xs font-bold text-slate-500 uppercase tracking-widest mb-2">Recommendations</h4>
-                  <ul className="list-disc list-inside text-sm text-slate-700 space-y-1">
+                <div className="glass-panel p-6 mb-8 relative z-10 border-rose-100/50 bg-rose-50/30">
+                  <h4 className="text-[10px] font-bold text-rose-500 uppercase tracking-widest mb-3 flex items-center gap-2">
+                    <Icons.Reports size={14} /> Recommended Action Plan
+                  </h4>
+                  <ul className="space-y-3">
                     {recommendations.map((rec, i) => (
-                      <li key={i}>{rec}</li>
+                      <li key={i} className="flex items-start gap-3 text-sm text-slate-700 font-medium">
+                        <div className="w-5 h-5 rounded-full bg-rose-200 text-rose-700 flex items-center justify-center flex-shrink-0 text-[10px] font-bold mt-0.5">{i + 1}</div>
+                        <span className="leading-relaxed">{rec}</span>
+                      </li>
                     ))}
                   </ul>
                 </div>
               )}
 
-              <div className="flex gap-4">
-                <button onClick={handleDownloadPDF} className="flex-1 bg-slate-900 text-white py-3 rounded-xl font-bold hover:bg-slate-800 transition-all flex items-center justify-center gap-2">
-                  <Icons.Reports />
-                  Download PDF Report
+              <div className="flex gap-4 relative z-10 pt-2">
+                <button onClick={handleDownloadPDF} className="flex-1 bg-slate-900 text-white py-4 rounded-2xl font-bold hover:bg-slate-800 hover:shadow-xl hover:-translate-y-0.5 transition-all duration-300 flex items-center justify-center gap-2 shadow-lg shadow-slate-300">
+                  <Icons.Reports size={20} />
+                  Export Formal Report (PDF)
                 </button>
               </div>
             </div>
@@ -306,36 +326,36 @@ const NewAnalysis: React.FC = () => {
         </div>
 
         {/* Right: Case Details */}
-        <div className="space-y-6">
-          <div className="bg-white rounded-2xl border border-slate-100 shadow-sm p-6">
-            <h3 className="font-bold text-slate-800 mb-4 flex items-center gap-2">
-              <Icons.Profile />
+        <div className="space-y-6 relative z-10">
+          <div className="glass-panel p-6 shadow-sm border border-slate-200/50 bg-white/60 backdrop-blur-md">
+            <h3 className="font-bold text-slate-800 mb-6 flex items-center gap-3 text-lg tracking-tight">
+              <div className="p-2 bg-blue-50 text-blue-600 rounded-lg"><Icons.Profile size={20} /></div>
               Case Context
             </h3>
-            <div className="space-y-4">
+            <div className="space-y-5">
               <div>
-                <label className="block text-xs font-bold text-slate-400 uppercase tracking-wider mb-1">Patient ID</label>
+                <label className="block text-[11px] font-bold text-slate-500 uppercase tracking-widest mb-2 pl-1">Patient ID</label>
                 <input
                   type="text"
                   value={patientId}
                   onChange={(e) => setPatientId(e.target.value)}
                   placeholder="Enter ID (Required)"
-                  className="w-full px-4 py-2 bg-slate-50 border border-slate-200 rounded-lg text-sm focus:ring-2 focus:ring-blue-500 outline-none transition-all"
+                  className="input-premium"
                 />
               </div>
               <div>
-                <label className="block text-xs font-bold text-slate-400 uppercase tracking-wider mb-1">Patient Name (Optional)</label>
+                <label className="block text-[11px] font-bold text-slate-500 uppercase tracking-widest mb-2 pl-1">Patient Name <span className="text-slate-400 font-normal lowercase tracking-normal">(Optional)</span></label>
                 <input
                   type="text"
                   value={patientName}
                   onChange={(e) => setPatientName(e.target.value)}
                   placeholder="Anonymous if empty"
-                  className="w-full px-4 py-2 bg-slate-50 border border-slate-200 rounded-lg text-sm focus:ring-2 focus:ring-blue-500 outline-none transition-all"
+                  className="input-premium"
                 />
               </div>
               <div>
-                <label className="block text-xs font-bold text-slate-400 uppercase tracking-wider mb-1">Clinical Notes</label>
-                <textarea rows={4} placeholder="Initial observations..." className="w-full px-4 py-2 bg-slate-50 border border-slate-200 rounded-lg text-sm focus:ring-2 focus:ring-blue-500 outline-none transition-all resize-none" />
+                <label className="block text-[11px] font-bold text-slate-500 uppercase tracking-widest mb-2 pl-1">Clinical Notes</label>
+                <textarea rows={4} placeholder="Initial observations..." className="input-premium resize-none" />
               </div>
             </div>
           </div>
@@ -343,18 +363,18 @@ const NewAnalysis: React.FC = () => {
           <button
             disabled={!image || status === AnalysisStatus.ANALYZING}
             onClick={handlePredict}
-            className={`w-full py-4 rounded-2xl font-bold text-lg shadow-lg transition-all flex items-center justify-center gap-3 ${!image || status === AnalysisStatus.ANALYZING
-              ? 'bg-slate-200 text-slate-400 cursor-not-allowed shadow-none'
-              : 'bg-blue-600 text-white hover:bg-blue-700 shadow-blue-100'
+            className={`w-full py-5 rounded-2xl font-bold text-lg shadow-xl transition-all duration-300 flex items-center justify-center gap-3 ${!image || status === AnalysisStatus.ANALYZING
+              ? 'bg-slate-200 text-slate-400 cursor-not-allowed shadow-none border border-slate-300/50'
+              : 'bg-blue-600 text-white hover:bg-blue-500 hover:-translate-y-1 shadow-blue-500/30'
               }`}
           >
-            {status === AnalysisStatus.ANALYZING ? 'Processing...' : 'Run Prediction'}
-            <Icons.Microscope />
+            {status === AnalysisStatus.ANALYZING ? 'Processing Scan...' : 'Run Deep Learning Analysis'}
+            <Icons.Microscope size={24} className={status === AnalysisStatus.ANALYZING ? "animate-pulse" : ""} />
           </button>
 
-          <div className="bg-slate-100 p-4 rounded-xl">
-            <p className="text-[10px] text-slate-500 uppercase tracking-widest font-bold mb-1">Privacy Guarantee</p>
-            <p className="text-[10px] text-slate-400 leading-tight">All processed images are anonymized. Patient identifiers are not stored in the AI model during training or inference. HIPAA Compliant.</p>
+          <div className="glass-panel p-5 bg-slate-50/50 border-slate-200/50">
+            <p className="text-[10px] text-slate-600 uppercase tracking-widest font-bold mb-2 flex items-center gap-1.5"><div className="w-1.5 h-1.5 bg-emerald-500 rounded-full"></div> Privacy Guarantee</p>
+            <p className="text-xs text-slate-500 leading-relaxed font-medium">All processed images are anonymized. Patient identifiers are not stored in the AI model during training or inference. Fully HIPAA Compliant.</p>
           </div>
         </div>
       </div>

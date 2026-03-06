@@ -56,21 +56,22 @@ const LoginPage: React.FC<LoginPageProps> = ({ onLogin, onGoogleLogin, onSignup 
   };
 
   return (
-    <div className="min-h-screen medical-gradient flex items-center justify-center p-4">
-      <div className="max-w-md w-full bg-white rounded-3xl shadow-2xl overflow-hidden fade-in">
-        <div className="p-10 border-b border-slate-50 text-center">
+    <div className="min-h-screen cinematic-gradient flex items-center justify-center p-4 selection:bg-blue-500/30">
+      <div className="max-w-md w-full glass-panel overflow-hidden fade-in-up" style={{ animationDuration: '0.8s' }}>
+        <div className="p-10 border-b border-slate-100 text-center relative overflow-hidden">
+          <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-blue-400 via-indigo-500 to-purple-500"></div>
 
-          <h2 className="text-2xl font-bold text-slate-900">
-            {showForgotView ? 'Reset Password' : 'Hospital Portal Login'}
+          <h2 className="text-2xl font-bold text-slate-800 tracking-tight mt-2">
+            {showForgotView ? 'Reset Password' : 'Welcome back.'}
           </h2>
-          <p className="text-slate-500 text-sm mt-2">
+          <p className="text-slate-500 text-sm mt-3 font-light">
             {showForgotView
               ? 'Enter your email to receive a secure reset link'
-              : 'Enter your credentials to access diagnostic tools'}
+              : 'Enter your credentials to access the clinical portal.'}
           </p>
         </div>
 
-        <div className="p-10">
+        <div className="p-10 bg-white/40">
           {error && (
             <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-xl text-sm mb-6 fade-in">
               {error}
@@ -84,41 +85,41 @@ const LoginPage: React.FC<LoginPageProps> = ({ onLogin, onGoogleLogin, onSignup 
           )}
 
           {!showForgotView ? (
-            <form onSubmit={handleSubmit} className="space-y-6">
+            <form onSubmit={handleSubmit} className="space-y-5">
               <div className="space-y-4">
                 <div>
-                  <label className="block text-xs font-bold text-slate-400 uppercase tracking-widest mb-2">Email Address</label>
+                  <label className="block text-[11px] font-bold text-slate-500 uppercase tracking-widest mb-2 pl-1">Email</label>
                   <input
                     required
                     type="email"
                     value={email}
                     onChange={(e) => setEmail(e.target.value)}
                     placeholder="doctor@medical.com"
-                    className="w-full px-5 py-4 bg-slate-50 border border-slate-200 rounded-2xl focus:ring-2 focus:ring-blue-500 outline-none transition-all"
+                    className="input-premium"
                   />
                 </div>
                 <div>
-                  <label className="block text-xs font-bold text-slate-400 uppercase tracking-widest mb-2">Security Password</label>
+                  <label className="block text-[11px] font-bold text-slate-500 uppercase tracking-widest mb-2 pl-1">Password</label>
                   <input
                     required
                     type="password"
                     value={password}
                     onChange={(e) => setPassword(e.target.value)}
                     placeholder="••••••••"
-                    className="w-full px-5 py-4 bg-slate-50 border border-slate-200 rounded-2xl focus:ring-2 focus:ring-blue-500 outline-none transition-all"
+                    className="input-premium"
                   />
                 </div>
               </div>
 
-              <div className="flex items-center justify-between">
+              <div className="flex items-center justify-between pt-1">
                 <label className="flex items-center gap-2 cursor-pointer group">
-                  <input type="checkbox" className="w-4 h-4 text-blue-600 border-slate-300 rounded focus:ring-blue-500" />
-                  <span className="text-sm text-slate-500 group-hover:text-slate-700">Remember me</span>
+                  <input type="checkbox" className="w-4 h-4 text-blue-600 border-slate-300 rounded focus:ring-blue-500/50 transition-colors" />
+                  <span className="text-sm text-slate-500 font-medium group-hover:text-slate-800 transition-colors">Remember me</span>
                 </label>
                 <button
                   type="button"
                   onClick={() => setShowForgotView(true)}
-                  className="text-sm font-semibold text-blue-600 hover:text-blue-700"
+                  className="text-sm font-semibold text-blue-600 hover:text-blue-800 transition-colors"
                 >
                   Forgot Password?
                 </button>
@@ -127,10 +128,10 @@ const LoginPage: React.FC<LoginPageProps> = ({ onLogin, onGoogleLogin, onSignup 
               <button
                 type="submit"
                 disabled={isLoading}
-                className="w-full bg-slate-900 text-white py-4 rounded-2xl font-bold text-lg hover:bg-slate-800 transition-all shadow-xl shadow-slate-200 flex items-center justify-center gap-2"
+                className="btn-primary w-full mt-2"
               >
                 {isLoading ? (
-                  <div className="w-6 h-6 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
+                  <div className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin"></div>
                 ) : 'Sign In'}
               </button>
 
@@ -165,18 +166,18 @@ const LoginPage: React.FC<LoginPageProps> = ({ onLogin, onGoogleLogin, onSignup 
           ) : (
             <form onSubmit={handleForgotSubmit} className="space-y-6">
               <div>
-                <label className="block text-xs font-bold text-slate-400 uppercase tracking-widest mb-2">Email Address</label>
+                <label className="block text-[11px] font-bold text-slate-500 uppercase tracking-widest mb-2 pl-1">Email Address</label>
                 <input
                   required
                   type="email"
                   value={forgotEmail}
                   onChange={(e) => setForgotEmail(e.target.value)}
                   placeholder="doctor@medical.com"
-                  className="w-full px-5 py-4 bg-slate-50 border border-slate-200 rounded-2xl focus:ring-2 focus:ring-blue-500 outline-none transition-all"
+                  className="input-premium"
                 />
               </div>
 
-              <div className="flex gap-4">
+              <div className="flex gap-3 pt-2">
                 <button
                   type="button"
                   onClick={() => {
@@ -184,17 +185,17 @@ const LoginPage: React.FC<LoginPageProps> = ({ onLogin, onGoogleLogin, onSignup 
                     setError('');
                     setForgotSuccess('');
                   }}
-                  className="flex-1 px-5 py-4 border border-slate-200 text-slate-600 font-bold rounded-2xl hover:bg-slate-50 transition-all"
+                  className="btn-secondary flex-1"
                 >
                   Back
                 </button>
                 <button
                   type="submit"
                   disabled={isLoading}
-                  className="flex-[2] bg-blue-600 text-white py-4 rounded-2xl font-bold hover:bg-blue-700 transition-all shadow-xl shadow-blue-100 flex items-center justify-center gap-2"
+                  className="btn-primary flex-[2]"
                 >
                   {isLoading ? (
-                    <div className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
+                    <div className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin"></div>
                   ) : 'Send Reset Link'}
                 </button>
               </div>
@@ -202,9 +203,9 @@ const LoginPage: React.FC<LoginPageProps> = ({ onLogin, onGoogleLogin, onSignup 
           )}
         </div>
 
-        <div className="bg-slate-50 p-6 text-center">
-          <p className="text-sm text-slate-500">
-            Don't have an account? <button onClick={onSignup} className="font-bold text-blue-600 hover:text-blue-700">Register as a clinical user</button>
+        <div className="bg-slate-50/80 backdrop-blur-md p-6 text-center border-t border-slate-100">
+          <p className="text-sm text-slate-500 font-medium">
+            Don't have an account? <button onClick={onSignup} className="font-semibold text-blue-600 hover:text-blue-800 transition-colors ml-1">Create one</button>
           </p>
         </div>
       </div>
