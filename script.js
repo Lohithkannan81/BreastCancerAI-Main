@@ -93,11 +93,11 @@ document.addEventListener("DOMContentLoaded", () => {
             typedPassword = true;
         }
         
-        // Small jiggling bounce effect per keystroke via JS
+        // Small bounce per keystroke — done via temporary scale transform
         mascots.forEach(m => {
-            m.style.transform = `translateY(4px) scale(0.98)`;
+            m.style.transform = 'scale(0.97)';
             setTimeout(() => {
-                m.style.transform = ''; // Reverts handled by existing CSS animation (though CSS clears transform natively on next frame, the transition will smooth it)
+                m.style.transform = 'scale(1)';
             }, 80);
         });
     });
@@ -129,19 +129,21 @@ document.addEventListener("DOMContentLoaded", () => {
         }
     });
 
-    // Prevent default form submission to just showcase the UI
-    document.getElementById('login-form').addEventListener('submit', (e) => {
-        e.preventDefault();
-        
-        // Fun success bounce
+    // Submit button click — causes a fun staggered bounce
+    document.querySelector('.submit-btn').addEventListener('click', () => {
         mascots.forEach((m, idx) => {
             setTimeout(() => {
                 m.style.transition = 'transform 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275)';
-                m.style.transform = 'translateY(-30px)';
+                m.style.transform = 'scale(1.12)';
                 setTimeout(() => {
-                     m.style.transform = '';
+                     m.style.transform = 'scale(1)';
                 }, 300);
             }, idx * 100);
         });
+    });
+
+    // Prevent default form submission
+    document.getElementById('login-form').addEventListener('submit', (e) => {
+        e.preventDefault();
     });
 });

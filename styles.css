@@ -41,10 +41,10 @@ body {
 .mascot-hamster { animation-delay: 1.2s; }
 .mascot-blob { animation-delay: 2.4s; }
 
-/* Subtle idle floating animation */
+/* Subtle idle floating animation — uses margin-top to avoid conflict with JS transform */
 @keyframes float {
-  0%, 100% { transform: translateY(0px) rotate(0deg); }
-  50% { transform: translateY(-10px) rotate(1deg); }
+  0%, 100% { margin-top: 0px; }
+  50% { margin-top: -12px; }
 }
 
 .pupil {
@@ -101,6 +101,7 @@ body {
   color: #2d3748;
   background: linear-gradient(135deg, #1a202c 0%, #4a5568 100%);
   -webkit-background-clip: text;
+  background-clip: text;
   -webkit-text-fill-color: transparent;
 }
 
@@ -139,6 +140,11 @@ body {
   transition: all 0.3s ease;
   box-sizing: border-box;
   box-shadow: 0 4px 6px rgba(0,0,0,0.02);
+}
+
+/* Prevent text hiding behind the eye toggle button */
+#password {
+  padding-right: 48px;
 }
 
 .input-group input:focus {
