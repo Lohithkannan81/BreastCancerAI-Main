@@ -12,7 +12,6 @@ const LandingPage: React.FC<LandingPageProps> = ({ onStart, onLogin }) => {
       {/* Navigation */}
       <nav className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 flex justify-between items-center">
         <div className="flex items-center gap-2">
-          <div className="w-8 h-8 bg-blue-600 rounded-lg flex items-center justify-center text-white font-bold">O</div>
           <span className="text-2xl font-bold text-slate-800">OncoVision AI</span>
         </div>
         <div className="flex gap-4">

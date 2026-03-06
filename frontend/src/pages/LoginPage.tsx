@@ -59,9 +59,7 @@ const LoginPage: React.FC<LoginPageProps> = ({ onLogin, onGoogleLogin, onSignup 
     <div className="min-h-screen medical-gradient flex items-center justify-center p-4">
       <div className="max-w-md w-full bg-white rounded-3xl shadow-2xl overflow-hidden fade-in">
         <div className="p-10 border-b border-slate-50 text-center">
-          <div className="flex justify-center mb-6">
-            <div className="w-12 h-12 bg-blue-600 rounded-2xl flex items-center justify-center text-white text-2xl font-bold shadow-lg shadow-blue-100">O</div>
-          </div>
+
           <h2 className="text-2xl font-bold text-slate-900">
             {showForgotView ? 'Reset Password' : 'Hospital Portal Login'}
           </h2>
