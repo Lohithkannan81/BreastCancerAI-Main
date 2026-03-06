@@ -1,271 +1,471 @@
 /*
  * ============================================================
- *  Pure CSS MediBot Mascots — mascot.css
- *  Three color variants: yellow (.yellow), teal (.teal), pink (.pink)
+ *  Pure CSS Mascots — Three Unique Designs
+ *  🤖 Robot  (top)   — squarish, boxy, techy
+ *  🐹 Hamster (left)  — round, fluffy, chubby cheeks
+ *  👻 Ghost  (right)  — pear/teardrop, wavy, floaty
+ *
  *  No SVG · No images · No canvas · No icon libs
  * ============================================================ */
 
-/* ── Wrapper & tag ─────────────────────────────────────────── */
+/* ── Shared wrapper ─────────────────────────────────────── */
 .mascot-wrap {
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 8px;
-}
-.mascot-tag {
-  font-size: 11px;
-  font-weight: 700;
-  letter-spacing: 0.07em;
-  text-transform: uppercase;
-  color: #94a3b8;
-  text-align: center;
 }
 
-/* ── Mascot Body ───────────────────────────────────────────── */
-.mascot-body {
+/* ================================================================
+   🤖 ROBOT MASCOT
+   Square body, rectangular eye sockets, radar antenna
+   ================================================================ */
+.robot-body {
   position: relative;
-  width: 120px;
-  height: 126px;
-  border-radius: 52% 48% 58% 42% / 58% 46% 54% 42%;
-  animation: mascot-breathe 3.2s ease-in-out infinite;
-  transition: border-radius 0.55s ease, box-shadow 0.4s ease;
+  width: 110px;
+  height: 110px;
+  background: linear-gradient(145deg, #dbeafe, #93c5fd, #3b82f6);
+  border-radius: 22px;
+  box-shadow:
+    0 14px 32px rgba(59,130,246,0.35),
+    inset 0 2px 0 rgba(255,255,255,0.4),
+    inset 0 -4px 0 rgba(0,0,80,0.15);
+  animation: robot-hover 3s ease-in-out infinite;
+  transition: border-radius 0.4s ease;
+}
+@keyframes robot-hover {
+  0%,100% { transform: translateY(0); }
+  50%      { transform: translateY(-8px); }
 }
 
-/* Yellow variant (default) */
-.mascot-body.yellow {
-  background: radial-gradient(circle at 38% 30%, #fff9e0, #ffe680 55%, #f5c200);
-  box-shadow: 0 16px 36px rgba(245, 194, 0, 0.30), inset 0 -5px 14px rgba(245, 194, 0, 0.2);
-}
-/* Teal variant */
-.mascot-body.teal {
-  background: radial-gradient(circle at 38% 30%, #e0fdf8, #5eead4 55%, #0d9488);
-  box-shadow: 0 16px 36px rgba(13, 148, 136, 0.30), inset 0 -5px 14px rgba(13, 148, 136, 0.2);
-}
-/* Pink variant */
-.mascot-body.pink {
-  background: radial-gradient(circle at 38% 30%, #fff0f7, #f9a8d4 55%, #ec4899);
-  box-shadow: 0 16px 36px rgba(236, 72, 153, 0.28), inset 0 -5px 14px rgba(236, 72, 153, 0.18);
-}
+/* Robot curious state */
+.robot-body.curious { box-shadow: 0 18px 40px rgba(59,130,246,0.45), inset 0 2px 0 rgba(255,255,255,0.4); }
 
-@keyframes mascot-breathe {
-  0%, 100% { transform: scaleY(1)   scaleX(1)    rotate(-1deg); }
-  50%       { transform: scaleY(1.04) scaleX(0.97) rotate(1deg);  }
-}
-
-/* Curious state */
-.mascot-body.curious {
-  border-radius: 50% 50% 56% 44% / 54% 54% 46% 46%;
-  animation: mascot-curious 0.5s ease forwards;
-}
-@keyframes mascot-curious {
-  0%   { transform: translateY(0);    }
-  35%  { transform: translateY(-9px); }
-  65%  { transform: translateY(3px);  }
-  100% { transform: translateY(0);    }
-}
-
-/* ── Antenna ───────────────────────────────────────────────── */
-.mascot-antenna {
+/* Robot antenna — tall thin bar with spinning radar dish */
+.robot-antenna {
   position: absolute;
-  width: 5px;
-  height: 26px;
-  top: -24px;
+  width: 6px;
+  height: 28px;
+  background: #2563eb;
+  top: -28px;
   left: 50%;
   transform: translateX(-50%);
-  border-radius: 5px 5px 0 0;
+  border-radius: 3px;
 }
-.yellow .mascot-antenna { background: linear-gradient(to top, #f5c200, #ffe8a3); }
-.teal   .mascot-antenna { background: linear-gradient(to top, #0d9488, #99f6e4); }
-.pink   .mascot-antenna { background: linear-gradient(to top, #ec4899, #fbcfe8); }
-
-.mascot-antenna-ball {
+.robot-antenna::after {
+  content: '';
   position: absolute;
-  width: 12px; height: 12px;
-  border-radius: 50%;
-  top: -7px;
+  width: 16px;
+  height: 6px;
+  background: #1d4ed8;
+  border-radius: 3px;
+  top: -4px;
   left: 50%;
   transform: translateX(-50%);
-  animation: antenna-glow 1.8s ease-in-out infinite;
+  animation: radar-spin 2s linear infinite;
+  transform-origin: left center;
 }
-.yellow .mascot-antenna-ball { background: radial-gradient(circle at 35% 30%, #fff, #ff9a9e); box-shadow: 0 0 5px 2px rgba(255,154,158,.7); }
-.teal   .mascot-antenna-ball { background: radial-gradient(circle at 35% 30%, #fff, #5eead4); box-shadow: 0 0 5px 2px rgba(94,234,212,.8); }
-.pink   .mascot-antenna-ball { background: radial-gradient(circle at 35% 30%, #fff, #f472b6); box-shadow: 0 0 5px 2px rgba(244,114,182,.8); }
-
-@keyframes antenna-glow {
-  0%,100% { transform: translateX(-50%) scale(1);    opacity: 1; }
-  50%      { transform: translateX(-50%) scale(1.25); opacity: .7; }
+@keyframes radar-spin {
+  0%   { transform: translateX(-50%) rotate(0deg); }
+  100% { transform: translateX(-50%) rotate(360deg); }
 }
 
-/* ── Eyebrows ──────────────────────────────────────────────── */
-.mascot-eyebrow {
+/* Robot eye sockets — RECTANGULAR, not round */
+.robot-eye {
   position: absolute;
-  width: 24px; height: 4px;
-  border-radius: 8px;
-  top: 30px;
-  transition: transform 0.35s cubic-bezier(0.25,1,0.5,1), top 0.35s ease;
-}
-.yellow .mascot-eyebrow { background: #7a5c00; }
-.teal   .mascot-eyebrow { background: #065f46; }
-.pink   .mascot-eyebrow { background: #9d174d; }
-
-.mascot-eyebrow.left  { left: 14px;  transform: rotate(-8deg); }
-.mascot-eyebrow.right { right: 14px; transform: rotate(8deg);  }
-
-.mascot-body.curious .mascot-eyebrow.left  { transform: rotate(-16deg) translateY(-5px); }
-.mascot-body.curious .mascot-eyebrow.right { transform: rotate(16deg)  translateY(-5px); }
-.mascot-body.shy     .mascot-eyebrow.left  { transform: rotate(10deg)  translateY(3px); }
-.mascot-body.shy     .mascot-eyebrow.right { transform: rotate(-10deg) translateY(3px); }
-
-/* ── Eye Sockets ───────────────────────────────────────────── */
-.mascot-eye {
-  position: absolute;
-  width: 34px; height: 34px;
-  background: #fff;
-  border-radius: 50%;
-  top: 40px;
+  width: 32px;
+  height: 24px;
+  background: #0f172a;
+  border-radius: 5px;
+  top: 28px;
   overflow: hidden;
-  box-shadow: 0 2px 7px rgba(0,0,0,.10), inset 0 -1px 3px rgba(0,0,0,.05);
-  animation: eye-blink 4s ease-in-out infinite;
+  box-shadow: inset 0 0 8px rgba(59,130,246,0.8), 0 0 6px rgba(59,130,246,0.5);
 }
-.mascot-eye.left  { left: 10px; }
-.mascot-eye.right { right: 10px; animation-delay: 0.07s; }
+.robot-eye.left  { left: 12px; }
+.robot-eye.right { right: 12px; }
 
-@keyframes eye-blink {
-  0%,88%,100% { transform: scaleY(1);    }
-  94%          { transform: scaleY(0.08); }
-}
-
-/* ── Eyelid ────────────────────────────────────────────────── */
-.mascot-eyelid {
+/* Robot eyelid — slides from left (like a metal shutter) */
+.robot-eyelid {
   position: absolute;
   width: 100%; height: 100%;
-  border-radius: 50%;
-  top: -100%;
-  left: 0;
-  transition: top 0.35s cubic-bezier(0.6,0,0.4,1);
+  background: #1e40af;
+  border-radius: 4px;
+  top: -100%; left: 0;
+  transition: top 0.3s ease;
   z-index: 3;
 }
-.yellow .mascot-eyelid { background: #ffe680; }
-.teal   .mascot-eyelid { background: #5eead4; }
-.pink   .mascot-eyelid { background: #f9a8d4; }
+.robot-body.cover-eyes .robot-eyelid { top: 0; }
 
-.mascot-body.cover-eyes .mascot-eyelid { top: 0; }
-
-/* ── Pupils ────────────────────────────────────────────────── */
-.mascot-pupil {
+/* Robot pupils — square-ish glow dots */
+.robot-pupil {
   position: absolute;
-  width: 16px; height: 16px;
-  background: radial-gradient(circle at 38% 33%, #555, #1a1a2e 70%);
+  width: 14px; height: 14px;
+  background: radial-gradient(circle, #93c5fd 30%, #1d4ed8 100%);
+  border-radius: 3px;
+  top: 50%; left: 50%;
+  transform: translate(-50%, -50%);
+  transition: transform 0.07s ease-out;
+  box-shadow: 0 0 8px rgba(147,197,253,0.9);
+  z-index: 2;
+}
+
+/* Robot eyebrow — horizontal bar above each eye */
+.robot-eyebrow {
+  position: absolute;
+  width: 32px;
+  height: 5px;
+  background: #1d4ed8;
+  border-radius: 2px;
+  top: 18px;
+  transition: transform 0.35s ease, top 0.35s ease;
+}
+.robot-eyebrow.left  { left: 12px;  transform: rotate(0deg); }
+.robot-eyebrow.right { right: 12px; transform: rotate(0deg); }
+.robot-body.curious .robot-eyebrow.left  { transform: rotate(-10deg) translateY(-4px); }
+.robot-body.curious .robot-eyebrow.right { transform: rotate(10deg) translateY(-4px); }
+.robot-body.shy .robot-eyebrow.left  { transform: rotate(5deg) translateY(3px); }
+.robot-body.shy .robot-eyebrow.right { transform: rotate(-5deg) translateY(3px); }
+
+/* Robot mouth — speaker grill (3 horizontal lines) */
+.robot-mouth {
+  position: absolute;
+  width: 44px;
+  bottom: 18px;
+  left: 50%;
+  transform: translateX(-50%);
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+.robot-mouth-bar {
+  height: 3px;
+  background: #1e40af;
+  border-radius: 2px;
+  transition: opacity 0.3s ease;
+}
+.robot-body.curious .robot-mouth-bar:nth-child(2) { opacity: 0.4; }
+.robot-body.cover-eyes .robot-mouth-bar { background: #2563eb; }
+
+/* Robot arms — rigid rectangular arms */
+.robot-arm {
+  position: absolute;
+  width: 13px; height: 50px;
+  background: linear-gradient(to bottom, #3b82f6, #1d4ed8);
+  border-radius: 4px;
+  bottom: 16px;
+  transition: transform 0.45s cubic-bezier(0.175,0.885,0.32,1.275);
+}
+.robot-arm.left  { left: -12px;  transform-origin: top center; transform: rotate(8deg); }
+.robot-arm.right { right: -12px; transform-origin: top center; transform: rotate(-8deg); }
+.robot-hand {
+  width: 18px; height: 14px;
+  background: #3b82f6;
+  border-radius: 3px;
+  position: absolute;
+  bottom: -8px; left: 50%; transform: translateX(-50%);
+  box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+}
+.robot-body.cover-eyes .robot-arm.left  { transform: rotate(-140deg) translate(-8px,-8px); }
+.robot-body.cover-eyes .robot-arm.right { transform: rotate(140deg)  translate(8px,-8px); }
+
+/* Robot stethoscope */
+.robot-steth { position: absolute; bottom: 4px; left: 50%; transform: translateX(-50%); }
+.robot-steth-tube { width: 30px; height: 11px; border: 3px solid #1e3a5f; border-top: none; border-radius: 0 0 14px 14px; margin: 0 auto; }
+.robot-steth-head { width: 9px; height: 9px; background: #bfdbfe; border: 3px solid #1e3a5f; border-radius: 50%; margin: 0 auto; margin-top: -2px; }
+
+/* ================================================================
+   🐹 HAMSTER MASCOT
+   Extra-round, big cheeks, ear bumps, tiny eyes, pink accents
+   ================================================================ */
+.hamster-wrap { position: relative; }
+
+/* Ears — two circles poking up from behind the head */
+.hamster-ear {
+  position: absolute;
+  width: 34px; height: 34px;
+  background: radial-gradient(circle at 50% 60%, #fca5a5, #f97316);
+  border-radius: 50%;
+  top: -10px;
+  z-index: 0;
+}
+.hamster-ear.left  { left: 6px; }
+.hamster-ear.right { right: 6px; }
+.hamster-ear::after {
+  content: '';
+  position: absolute;
+  width: 18px; height: 18px;
+  background: #fed7aa;
+  border-radius: 50%;
+  top: 6px; left: 50%;
+  transform: translateX(-50%);
+}
+
+.hamster-body {
+  position: relative;
+  width: 120px;
+  height: 120px;
+  background: radial-gradient(circle at 40% 35%, #fff7ed, #fdba74 55%, #f97316);
+  border-radius: 50%;
+  box-shadow: 0 14px 32px rgba(249,115,22,0.30), inset 0 -4px 12px rgba(194,65,12,0.15);
+  animation: hamster-bounce 2.8s ease-in-out infinite;
+  transition: transform 0.4s ease;
+  z-index: 1;
+}
+@keyframes hamster-bounce {
+  0%,100% { transform: scale(1) rotate(-2deg); }
+  50%      { transform: scale(1.05) rotate(2deg); }
+}
+
+/* Cheeks — big puffy side pudges */
+.hamster-cheek {
+  position: absolute;
+  width: 32px; height: 26px;
+  background: radial-gradient(circle, #fca5a5, #f87171);
+  border-radius: 50%;
+  top: 68px;
+  filter: blur(2px);
+  opacity: 0.7;
+  transition: opacity 0.35s ease;
+  z-index: 2;
+}
+.hamster-cheek.left  { left: 0px; }
+.hamster-cheek.right { right: 0px; }
+.hamster-body.shy .hamster-cheek { opacity: 1; }
+
+/* Hamster eye sockets — small, round, cute */
+.hamster-eye {
+  position: absolute;
+  width: 28px; height: 28px;
+  background: #fff;
+  border-radius: 50%;
+  top: 38px;
+  overflow: hidden;
+  box-shadow: 0 2px 6px rgba(0,0,0,0.1);
+  animation: hamster-blink 3.5s ease-in-out infinite;
+}
+.hamster-eye.left  { left: 20px; }
+.hamster-eye.right { right: 20px; animation-delay: 0.1s; }
+@keyframes hamster-blink {
+  0%,85%,100% { transform: scaleY(1); }
+  92%          { transform: scaleY(0.08); }
+}
+
+.hamster-eyelid {
+  position: absolute;
+  width: 100%; height: 100%;
+  background: #fdba74;
+  border-radius: 50%;
+  top: -100%; left: 0;
+  transition: top 0.35s ease;
+  z-index: 3;
+}
+.hamster-body.cover-eyes .hamster-eyelid { top: 0; }
+
+.hamster-pupil {
+  position: absolute;
+  width: 14px; height: 14px;
+  background: radial-gradient(circle at 38% 33%, #555, #3e2723 70%);
   border-radius: 50%;
   top: 50%; left: 50%;
   transform: translate(-50%, -50%);
   transition: transform 0.07s ease-out;
   z-index: 2;
 }
-.mascot-pupil-shine {
+.hamster-pupil-shine { width: 5px; height: 5px; background: rgba(255,255,255,0.9); border-radius: 50%; position: absolute; top: 2px; left: 3px; }
+
+/* Hamster eyebrows — short curved */
+.hamster-eyebrow {
   position: absolute;
-  width: 5px; height: 5px;
-  background: rgba(255,255,255,0.92);
+  width: 22px; height: 4px;
+  background: #92400e;
   border-radius: 50%;
-  top: 3px; left: 3px;
+  top: 30px;
+  transition: transform 0.35s ease, top 0.35s ease;
+}
+.hamster-eyebrow.left  { left: 21px;  transform: rotate(-12deg); }
+.hamster-eyebrow.right { right: 21px; transform: rotate(12deg); }
+.hamster-body.curious .hamster-eyebrow.left  { transform: rotate(-20deg) translateY(-4px); }
+.hamster-body.curious .hamster-eyebrow.right { transform: rotate(20deg) translateY(-4px); }
+.hamster-body.shy .hamster-eyebrow.left  { transform: rotate(10deg) translateY(3px); }
+.hamster-body.shy .hamster-eyebrow.right { transform: rotate(-10deg) translateY(3px); }
+
+/* Hamster nose — small triangle */
+.hamster-nose {
+  position: absolute;
+  width: 0; height: 0;
+  border-left: 5px solid transparent;
+  border-right: 5px solid transparent;
+  border-top: 7px solid #c2410c;
+  top: 64px; left: 50%;
+  transform: translateX(-50%);
 }
 
-/* ── Blush ─────────────────────────────────────────────────── */
-.mascot-blush {
+/* Hamster mouth — W shape using two small curves */
+.hamster-mouth {
   position: absolute;
-  width: 20px; height: 9px;
-  border-radius: 50%;
-  opacity: 0.5;
-  top: 76px;
-  filter: blur(3px);
-  transition: opacity 0.35s ease;
-}
-.mascot-blush.left  { left: 7px; }
-.mascot-blush.right { right: 7px; }
-
-.yellow .mascot-blush { background: #ffb3c6; }
-.teal   .mascot-blush { background: #a7f3d0; }
-.pink   .mascot-blush { background: #fda4af; }
-
-.mascot-body.shy .mascot-blush { opacity: 0.9; }
-
-/* ── Mouth ─────────────────────────────────────────────────── */
-.mascot-mouth {
-  position: absolute;
-  width: 26px; height: 13px;
-  bottom: 22px;
-  left: 50%;
+  width: 24px; height: 10px;
+  bottom: 26px; left: 50%;
   transform: translateX(-50%);
   overflow: hidden;
   transition: height 0.35s ease;
 }
-.mascot-mouth-inner {
-  width: 26px; height: 26px;
+.hamster-mouth-inner {
+  width: 24px; height: 24px;
+  border: 3px solid #92400e;
   border-radius: 50%;
-  position: relative;
   top: 0;
-  transition: top 0.35s ease, border-color 0.3s ease;
-  border: 3px solid;
+  position: relative;
+  transition: top 0.3s ease;
 }
-.yellow .mascot-mouth-inner { border-color: #a06000; }
-.teal   .mascot-mouth-inner { border-color: #065f46; }
-.pink   .mascot-mouth-inner { border-color: #9d174d; }
+.hamster-body.curious .hamster-mouth { height: 16px; }
+.hamster-body.curious .hamster-mouth-inner { top: -2px; }
+.hamster-body.shy .hamster-mouth { height: 6px; }
 
-.mascot-body.curious .mascot-mouth { height: 18px; }
-.mascot-body.curious .mascot-mouth-inner { top: -3px; }
-.mascot-body.shy .mascot-mouth { height: 7px; }
-
-/* ── Stethoscope ───────────────────────────────────────────── */
-.mascot-steth {
+/* Hamster arms — stubby round */
+.hamster-arm {
   position: absolute;
-  bottom: 5px;
-  left: 50%;
-  transform: translateX(-50%);
-}
-.mascot-steth-tube {
-  width: 32px; height: 12px;
-  border: 3px solid #455a64;
-  border-top: none;
-  border-radius: 0 0 18px 18px;
-  margin: 0 auto;
-}
-.mascot-steth-head {
-  width: 9px; height: 9px;
-  background: #eceff1;
-  border: 3px solid #455a64;
-  border-radius: 50%;
-  margin: 0 auto;
-  margin-top: -2px;
-}
-
-/* ── Arms ──────────────────────────────────────────────────── */
-.mascot-arm {
-  position: absolute;
-  width: 11px; height: 44px;
-  border-radius: 7px;
-  bottom: 20px;
+  width: 14px; height: 40px;
+  background: linear-gradient(to bottom, #f97316, #fed7aa);
+  border-radius: 8px;
+  bottom: 18px;
   transition: transform 0.45s cubic-bezier(0.175,0.885,0.32,1.275);
 }
-.yellow .mascot-arm { background: linear-gradient(to bottom, #f5c200, #ffe8a3); }
-.teal   .mascot-arm { background: linear-gradient(to bottom, #0d9488, #99f6e4); }
-.pink   .mascot-arm { background: linear-gradient(to bottom, #ec4899, #fbcfe8); }
-
-.mascot-arm.left  { left: -7px;  transform-origin: top center; transform: rotate(10deg); }
-.mascot-arm.right { right: -7px; transform-origin: top center; transform: rotate(-10deg); }
-
-.mascot-hand {
-  width: 17px; height: 17px;
+.hamster-arm.left  { left: -10px; transform-origin: top center; transform: rotate(14deg); }
+.hamster-arm.right { right: -10px;transform-origin: top center; transform: rotate(-14deg); }
+.hamster-hand {
+  width: 20px; height: 20px;
+  background: radial-gradient(circle at 40% 35%, #fff7ed, #fb923c);
   border-radius: 50%;
   position: absolute;
-  bottom: -7px;
-  left: 50%;
-  transform: translateX(-50%);
-  box-shadow: 0 2px 4px rgba(0,0,0,.1);
+  bottom: -9px; left: 50%; transform: translateX(-50%);
 }
-.yellow .mascot-hand { background: radial-gradient(circle at 40% 30%, #fff9e0, #f5c200); }
-.teal   .mascot-hand { background: radial-gradient(circle at 40% 30%, #e0fdf8, #0d9488); }
-.pink   .mascot-hand { background: radial-gradient(circle at 40% 30%, #fff0f7, #ec4899); }
+.hamster-body.cover-eyes .hamster-arm.left  { transform: rotate(-140deg) translate(-8px,-8px); }
+.hamster-body.cover-eyes .hamster-arm.right { transform: rotate(140deg)  translate(8px,-8px); }
 
-/* Cover-eyes */
-.mascot-body.cover-eyes .mascot-arm.left  { transform: rotate(-145deg) translate(-8px,-8px); }
-.mascot-body.cover-eyes .mascot-arm.right { transform: rotate(145deg)  translate(8px, -8px); }
+/* Hamster stethoscope */
+.hamster-steth { position: absolute; bottom: 4px; left: 50%; transform: translateX(-50%); }
+.hamster-steth-tube { width: 32px; height: 12px; border: 3px solid #374151; border-top: none; border-radius: 0 0 16px 16px; margin: 0 auto; }
+.hamster-steth-head { width: 9px; height: 9px; background: #f3f4f6; border: 3px solid #374151; border-radius: 50%; margin: 0 auto; margin-top: -2px; }
+
+/* ================================================================
+   👻 GHOST MASCOT
+   Teardrop/pear shape, wavy hem, big oval eyes, floaty
+   ================================================================ */
+.ghost-body {
+  position: relative;
+  width: 100px;
+  height: 128px;
+  background: radial-gradient(ellipse at 40% 30%, #ffffff, #e0e7ff 50%, #a5b4fc);
+  border-radius: 50% 50% 38% 38% / 60% 60% 40% 40%;
+  box-shadow: 0 12px 30px rgba(99,102,241,0.28), inset 0 -5px 14px rgba(99,102,241,0.12);
+  animation: ghost-float 3s ease-in-out infinite;
+  transition: transform 0.5s ease;
+}
+@keyframes ghost-float {
+  0%,100% { transform: translateY(0) rotate(0deg); }
+  25%      { transform: translateY(-10px) rotate(-2deg); }
+  75%      { transform: translateY(-6px) rotate(2deg); }
+}
+
+/* Wavy bottom hem — 4 overlapping circles to simulate wavy edge */
+.ghost-wave-row {
+  position: absolute;
+  bottom: -8px; left: -2px; right: -2px;
+  display: flex;
+  justify-content: space-around;
+}
+.ghost-wave {
+  width: 26px; height: 18px;
+  border-radius: 0 0 50% 50%;
+  background: radial-gradient(ellipse at 40% 30%, #ffffff, #e0e7ff 50%, #a5b4fc);
+}
+
+/* Ghost eye sockets — large oval, very prominent */
+.ghost-eye {
+  position: absolute;
+  width: 30px; height: 36px;
+  background: #1e1b4b;
+  border-radius: 50%;
+  top: 30px;
+  overflow: hidden;
+  box-shadow: 0 2px 8px rgba(30,27,75,0.3);
+  animation: ghost-blink 5s ease-in-out infinite;
+}
+.ghost-eye.left  { left: 12px; }
+.ghost-eye.right { right: 12px; animation-delay: 0.12s; }
+@keyframes ghost-blink {
+  0%,80%,100% { transform: scaleY(1); }
+  90%          { transform: scaleY(0.05); }
+}
+
+.ghost-eyelid {
+  position: absolute;
+  width: 100%; height: 100%;
+  background: #a5b4fc;
+  border-radius: 50%;
+  top: -100%; left: 0;
+  transition: top 0.35s ease;
+  z-index: 3;
+}
+.ghost-body.cover-eyes .ghost-eyelid { top: 0; }
+
+.ghost-pupil {
+  position: absolute;
+  width: 16px; height: 18px;
+  background: radial-gradient(circle at 38% 33%, #818cf8, #1e1b4b 70%);
+  border-radius: 50%;
+  top: 50%; left: 50%;
+  transform: translate(-50%, -50%);
+  transition: transform 0.07s ease-out;
+  z-index: 2;
+}
+.ghost-pupil-shine { width: 5px; height: 6px; background: rgba(255,255,255,0.9); border-radius: 50%; position: absolute; top: 3px; left: 3px; }
+
+/* Ghost has no eyebrows — just a subtle glow above eyes */
+.ghost-brow-glow {
+  position: absolute;
+  width: 28px; height: 6px;
+  background: #818cf8;
+  border-radius: 50%;
+  opacity: 0.4;
+  top: 22px;
+  filter: blur(3px);
+  transition: opacity 0.35s ease, transform 0.35s ease;
+}
+.ghost-brow-glow.left  { left: 12px; }
+.ghost-brow-glow.right { right: 12px; }
+.ghost-body.curious .ghost-brow-glow { opacity: 0.85; transform: translateY(-3px); }
+.ghost-body.shy     .ghost-brow-glow { opacity: 0.2; transform: translateY(3px); }
+
+/* Ghost mouth — small O shape */
+.ghost-mouth {
+  position: absolute;
+  width: 22px; height: 22px;
+  border: 3px solid #3730a3;
+  border-radius: 50%;
+  bottom: 24px; left: 50%;
+  transform: translateX(-50%);
+  background: rgba(55,48,163,0.1);
+  transition: all 0.35s ease;
+}
+.ghost-body.curious .ghost-mouth { width: 28px; height: 28px; bottom: 22px; }
+.ghost-body.shy     .ghost-mouth { width: 16px; height: 10px; border-radius: 50%; bottom: 28px; }
+
+/* Ghost tentacle arms — curvy thin streamers */
+.ghost-arm {
+  position: absolute;
+  width: 10px; height: 50px;
+  background: linear-gradient(to bottom, #a5b4fc, rgba(165,180,252,0));
+  border-radius: 10px;
+  bottom: 2px;
+  transition: transform 0.5s cubic-bezier(0.175,0.885,0.32,1.275);
+  opacity: 0.85;
+}
+.ghost-arm.left  { left: -6px;  transform-origin: top center; transform: rotate(14deg);  border-radius: 60% 40% 60% 40% / 50% 50% 50% 50%; }
+.ghost-arm.right { right: -6px; transform-origin: top center; transform: rotate(-14deg); border-radius: 40% 60% 40% 60% / 50% 50% 50% 50%; }
+.ghost-body.cover-eyes .ghost-arm.left  { transform: rotate(-130deg) translate(-10px,-10px); }
+.ghost-body.cover-eyes .ghost-arm.right { transform: rotate(130deg) translate(10px,-10px); }
+
+/* Ghost stethoscope */
+.ghost-steth { position: absolute; bottom: 10px; left: 50%; transform: translateX(-50%); }
+.ghost-steth-tube { width: 28px; height: 10px; border: 3px solid #312e81; border-top: none; border-radius: 0 0 12px 12px; margin: 0 auto; }
+.ghost-steth-head { width: 8px; height: 8px; background: #e0e7ff; border: 3px solid #312e81; border-radius: 50%; margin: 0 auto; margin-top: -2px; }
