@@ -64,7 +64,7 @@ export async function listMammograms(username: string, patientId: string): Promi
     .list(`${username}/${patientId}`, { sortBy: { column: 'created_at', order: 'desc' } });
 
   if (error) { console.error('Supabase list error:', error.message); return []; }
-  return (data ?? []).map(f => `${username}/${patientId}/${f.name}`);
+  return (data ?? []).map((f: any) => `${username}/${patientId}/${f.name}`);
 }
 
 /**
