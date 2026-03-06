@@ -106,22 +106,19 @@ export const registerUser = async (
   _org: string, _dept: string
 ): Promise<boolean> => {
   if (isSupabaseConfigured) {
-    try {
-      const { error } = await supabase.from('users').insert({
-        username: email,
-        password: hashPassword(password),
-        fullname: name,
-        role,
-      });
-      if (error) {
-        if (error.code === '23505') throw new Error('Username already exists');
-        throw new Error(error.message);
-      }
-      return true;
-    } catch (e: any) {
-      if (e.message === 'Username already exists') throw e;
-      console.warn('Supabase register failed, using localStorage:', e.message);
+    const { error } = await supabase.from('users').insert({
+      username: email,
+      password: hashPassword(password),
+      fullname: name,
+      role,
+    });
+    
+    if (error) {
+      if (error.code === '23505') throw new Error('Username already exists');
+      // Surface actual Supabase errors to the UI so we can debug (e.g. if SQL script wasn't run)
+      throw new Error(`Supabase Error: ${error.message}`);
     }
+    return true;
   }
 
   // localStorage fallback
