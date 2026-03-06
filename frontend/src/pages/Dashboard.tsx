@@ -2,8 +2,6 @@
 import React from 'react';
 import { Icons } from '../constants';
 import { useData } from '../contexts/DataContext';
-import { TumorClass } from '../types';
-
 interface DashboardProps {
   userName?: string;
 }
@@ -18,7 +16,7 @@ const Dashboard: React.FC<DashboardProps> = ({ userName = 'Doctor' }) => {
     return r.date === today;
   }).length;
 
-  const malignantCount = reports.filter(r => r.tumorClass === TumorClass.MALIGNANT).length;
+  const malignantCount = reports.filter(r => String(r.tumorClass).toUpperCase() === 'MALIGNANT').length;
 
   const stats = [
     { label: 'Total Analyses', value: totalAnalyses.toString(), change: totalAnalyses > 0 ? 'Active' : 'No data', icon: Icons.Analysis },

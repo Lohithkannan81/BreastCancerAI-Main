@@ -76,7 +76,7 @@ const NewAnalysis: React.FC = () => {
       setResult(analysis);
       setStatus(AnalysisStatus.COMPLETED);
 
-      const isMalignant = analysis.tumorClass === TumorClass.MALIGNANT;
+      const isMalignant = String(analysis.tumorClass).toUpperCase() === 'MALIGNANT';
       const recs = isMalignant ? generateRecommendations() : ["Routine annual screening recommended."];
       setRecommendations(recs);
 
@@ -145,7 +145,9 @@ const NewAnalysis: React.FC = () => {
 
     // Results
     doc.setFontSize(16);
-    doc.setTextColor(result.tumorClass === TumorClass.MALIGNANT ? 200 : 0, result.tumorClass === TumorClass.BENIGN ? 150 : 0, 0);
+    const isMalignant = String(result.tumorClass).toUpperCase() === 'MALIGNANT';
+    const isBenign = String(result.tumorClass).toUpperCase() === 'BENIGN';
+    doc.setTextColor(isMalignant ? 200 : 0, isBenign ? 150 : 0, 0);
     doc.text(`Result: ${result.tumorClass.toUpperCase()}`, 20, 90);
 
     doc.setTextColor(0, 0, 0);

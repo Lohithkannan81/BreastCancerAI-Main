@@ -1,6 +1,5 @@
 
 import React, { useState } from 'react';
-import { TumorClass } from '../types';
 import { Icons } from '../constants';
 import { useData } from '../contexts/DataContext';
 
@@ -42,8 +41,10 @@ const History: React.FC = () => {
 
       // Results
       doc.setFontSize(16);
-      doc.setTextColor(report.tumorClass === TumorClass.MALIGNANT ? 200 : 0, report.tumorClass === TumorClass.BENIGN ? 150 : 0, 0);
-      doc.text(`Result: ${report.tumorClass.toUpperCase()}`, 20, 90);
+      const isMalignant = String(report.tumorClass).toUpperCase() === 'MALIGNANT';
+      const isBenign = String(report.tumorClass).toUpperCase() === 'BENIGN';
+      doc.setTextColor(isMalignant ? 200 : 0, isBenign ? 150 : 0, 0);
+      doc.text(`Result: ${String(report.tumorClass).toUpperCase()}`, 20, 90);
 
       doc.setTextColor(0, 0, 0);
       doc.setFontSize(12);
@@ -147,7 +148,7 @@ const History: React.FC = () => {
                     <span className="block font-bold text-slate-400 text-[10px] uppercase tracking-widest mb-2">Confidence Score</span>
                     <div className="flex items-center gap-3">
                       <div className="flex-1 h-2 bg-slate-200 rounded-full overflow-hidden">
-                        <div className={`h-full ${selectedReport.tumorClass === TumorClass.MALIGNANT ? 'bg-red-500' : 'bg-green-500'}`} style={{ width: `${selectedReport.confidence}%` }}></div>
+                        <div className={`h-full ${String(selectedReport.tumorClass).toUpperCase() === 'MALIGNANT' ? 'bg-rose-500' : 'bg-emerald-500'}`} style={{ width: `${selectedReport.confidence}%` }}></div>
                       </div>
                       <span className="font-bold text-slate-800">{selectedReport.confidence.toFixed(1)}%</span>
                     </div>
@@ -155,13 +156,13 @@ const History: React.FC = () => {
                 </div>
               </div>
 
-              <div className={`p-5 rounded-2xl border ${selectedReport.tumorClass === TumorClass.MALIGNANT ? 'bg-rose-50 border-rose-100' : 'bg-emerald-50 border-emerald-100'}`}>
+              <div className={`p-5 rounded-2xl border ${String(selectedReport.tumorClass).toUpperCase() === 'MALIGNANT' ? 'bg-rose-50 border-rose-100' : 'bg-emerald-50 border-emerald-100'}`}>
                 <span className="block font-bold text-slate-400 text-[10px] uppercase tracking-widest mb-1">Classification</span>
-                <span className={`text-xl font-black tracking-tight ${selectedReport.tumorClass === TumorClass.MALIGNANT ? 'text-rose-700' : 'text-emerald-700'}`}>
-                  {selectedReport.tumorClass}
+                <span className={`text-xl font-black tracking-tight ${String(selectedReport.tumorClass).toUpperCase() === 'MALIGNANT' ? 'text-rose-700' : 'text-emerald-700'}`}>
+                  {String(selectedReport.tumorClass).toUpperCase()}
                 </span>
                 <p className="text-sm text-slate-700 mt-2 font-medium">
-                  {selectedReport.tumorClass === TumorClass.MALIGNANT
+                  {String(selectedReport.tumorClass).toUpperCase() === 'MALIGNANT'
                     ? 'Automated analysis detected patterns consistent with malignancy.'
                     : 'No malignant patterns detected in the analyzed sample.'}
                 </p>
