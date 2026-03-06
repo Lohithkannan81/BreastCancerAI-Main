@@ -1,16 +1,15 @@
 /**
  * LoginPage.tsx
- * Healthcare AI Login — with inline pure-CSS MediBot mascot.
+ * Layout: [Left: 2 mascots] [Center: Card] [Right: 1 mascot]
+ * All mascots are pure CSS divs — no SVG, no images.
  *
- * Mascot is built entirely from <div> elements styled in mascot.css.
- * No SVG · No images · No canvas · No external icon libraries.
+ * Three color variants:
+ *  • Yellow  (Buddy)  — left top
+ *  • Teal    (Scout)  — left bottom
+ *  • Pink    (Luna)   — right center
  *
- * Mascot Interactions (via React state → CSS classes):
- *  • Mouse move       → JS moves pupils via style.transform
- *  • Email focus      → .curious class (eyebrows raise, mouth opens)
- *  • Password focus   → .shy class (pupils look away, deeper blush)
- *  • Show password    → .cover-eyes class (eyelids close, arms sweep up)
- *  • Hide password    → remove .cover-eyes (eyes open, arms lower)
+ * All 6 pupils track the mouse independently.
+ * All 3 mascots react to email/password focus and show/hide toggle.
  */
 
 import React, { useState, useEffect, useRef, useCallback } from 'react';
@@ -25,19 +24,22 @@ interface LoginPageProps {
   onSignup: () => void;
 }
 
-/* ──────────────────────────────────────────────────────────
-   Pure CSS Mascot Component
-   All shapes are divs. State is passed as className strings.
-────────────────────────────────────────────────────────── */
+/* ─────────────────────────────────────────────────────────────
+   Reusable CSSMascot component
+   Each variant gets a colorClass ('yellow' | 'teal' | 'pink')
+   and a name label. Pupil elements are identified by data-id
+   so the shared tracking loop can query all of them at once.
+───────────────────────────────────────────────────────────── */
 interface MascotProps {
-  stateClass: string; // '' | 'curious' | 'shy' | 'cover-eyes' | 'shy cover-eyes'
-  pupilLRef: React.RefObject<HTMLDivElement>;
-  pupilRRef: React.RefObject<HTMLDivElement>;
+  colorClass: 'yellow' | 'teal' | 'pink';
+  name: string;
+  stateClass: string;
+  mascotId: string; // unique id prefix for pupil elements
 }
 
-const CSSMascot: React.FC<MascotProps> = ({ stateClass, pupilLRef, pupilRRef }) => (
+const CSSMascot: React.FC<MascotProps> = ({ colorClass, name, stateClass, mascotId }) => (
   <div className="mascot-wrap">
-    <div className={`mascot-body ${stateClass}`}>
+    <div className={`mascot-body ${colorClass} ${stateClass}`}>
 
       {/* Antenna */}
       <div className="mascot-antenna">
@@ -51,7 +53,7 @@ const CSSMascot: React.FC<MascotProps> = ({ stateClass, pupilLRef, pupilRRef }) 
       {/* Left eye */}
       <div className="mascot-eye left">
         <div className="mascot-eyelid" />
-        <div className="mascot-pupil" ref={pupilLRef}>
+        <div className="mascot-pupil" data-mascot={mascotId}>
           <div className="mascot-pupil-shine" />
         </div>
       </div>
@@ -59,7 +61,7 @@ const CSSMascot: React.FC<MascotProps> = ({ stateClass, pupilLRef, pupilRRef }) 
       {/* Right eye */}
       <div className="mascot-eye right">
         <div className="mascot-eyelid" />
-        <div className="mascot-pupil" ref={pupilRRef}>
+        <div className="mascot-pupil" data-mascot={mascotId}>
           <div className="mascot-pupil-shine" />
         </div>
       </div>
@@ -84,137 +86,115 @@ const CSSMascot: React.FC<MascotProps> = ({ stateClass, pupilLRef, pupilRRef }) 
       <div className="mascot-arm right"><div className="mascot-hand" /></div>
     </div>
 
-    <p className="mascot-tag">MediBot · AI Assistant</p>
+    <p className="mascot-tag">{name}</p>
   </div>
 );
 
-/* ──────────────────────────────────────────────────────────
+/* ─────────────────────────────────────────────────────────────
    Main LoginPage
-────────────────────────────────────────────────────────── */
+───────────────────────────────────────────────────────────── */
 const LoginPage: React.FC<LoginPageProps> = ({ onLogin, onGoogleLogin, onSignup }) => {
-  const [isLoading, setIsLoading] = useState(false);
-  const [email, setEmail] = useState('');
-  const [password, setPassword] = useState('');
-  const [error, setError] = useState('');
+  const [isLoading, setIsLoading]       = useState(false);
+  const [email, setEmail]               = useState('');
+  const [password, setPassword]         = useState('');
+  const [error, setError]               = useState('');
   const [showForgotView, setShowForgotView] = useState(false);
-  const [forgotEmail, setForgotEmail] = useState('');
+  const [forgotEmail, setForgotEmail]   = useState('');
   const [forgotSuccess, setForgotSuccess] = useState('');
-
-  // Mascot state
-  const [mascotState, setMascotState] = useState(''); // '' | 'curious' | 'shy' | 'cover-eyes shy'
   const [isPasswordVisible, setIsPasswordVisible] = useState(false);
 
-  // Refs for pupil DOM elements
-  const pupilLRef = useRef<HTMLDivElement>(null);
-  const pupilRRef = useRef<HTMLDivElement>(null);
+  // Single shared stateClass for all 3 mascots — they react together
+  const [mascotState, setMascotState] = useState('');
   const pupilsLockedRef = useRef(false);
 
-  /* ── Pupil tracking ─────────────────────────────────────
-     For each pupil we find its socket's center, compute the
-     angle to the cursor, and offset the pupil up to MAX px.
-  ───────────────────────────────────────────────────────── */
+  /* ── Shared pupil tracking ────────────────────────────────
+     We query ALL .mascot-pupil elements on the page and move
+     each one relative to its own eye socket center.
+  ─────────────────────────────────────────────────────────── */
   const MAX_OFFSET = 8;
 
-  const movePupil = useCallback((el: HTMLDivElement | null, cx: number, cy: number) => {
-    if (!el) return;
-    const socket = el.closest('.mascot-eye') as HTMLElement;
-    if (!socket) return;
-    const r = socket.getBoundingClientRect();
-    const scx = r.left + r.width / 2;
-    const scy = r.top  + r.height / 2;
-    const angle = Math.atan2(cy - scy, cx - scx);
-    const dist  = Math.min(MAX_OFFSET, Math.hypot(cx - scx, cy - scy) / 12);
-    const dx = Math.cos(angle) * dist;
-    const dy = Math.sin(angle) * dist;
-    el.style.transform = `translate(calc(-50% + ${dx}px), calc(-50% + ${dy}px))`;
+  const moveAllPupils = useCallback((cursorX: number, cursorY: number) => {
+    const all = document.querySelectorAll<HTMLElement>('.mascot-pupil');
+    all.forEach(pupil => {
+      const socket = pupil.closest('.mascot-eye') as HTMLElement;
+      if (!socket) return;
+      const r = socket.getBoundingClientRect();
+      const cx = r.left + r.width  / 2;
+      const cy = r.top  + r.height / 2;
+      const angle = Math.atan2(cursorY - cy, cursorX - cx);
+      const dist  = Math.min(MAX_OFFSET, Math.hypot(cursorX - cx, cursorY - cy) / 12);
+      const dx = Math.cos(angle) * dist;
+      const dy = Math.sin(angle) * dist;
+      pupil.style.transform = `translate(calc(-50% + ${dx}px), calc(-50% + ${dy}px))`;
+    });
   }, []);
 
   useEffect(() => {
-    const onMouseMove = (e: MouseEvent) => {
+    const onMove = (e: MouseEvent) => {
       if (pupilsLockedRef.current) return;
-      movePupil(pupilLRef.current, e.clientX, e.clientY);
-      movePupil(pupilRRef.current, e.clientX, e.clientY);
+      moveAllPupils(e.clientX, e.clientY);
     };
-    window.addEventListener('mousemove', onMouseMove);
-    return () => window.removeEventListener('mousemove', onMouseMove);
-  }, [movePupil]);
+    window.addEventListener('mousemove', onMove);
+    return () => window.removeEventListener('mousemove', onMove);
+  }, [moveAllPupils]);
 
-  /* Lock pupils to a fixed offset (smooth transition) */
+  /* Lock all pupils to a fixed offset (smooth) */
   const lockGaze = (dx: number, dy: number) => {
     pupilsLockedRef.current = true;
     const t = `translate(calc(-50% + ${dx}px), calc(-50% + ${dy}px))`;
-    [pupilLRef, pupilRRef].forEach(ref => {
-      if (ref.current) {
-        ref.current.style.transition = 'transform 0.4s cubic-bezier(0.25, 1, 0.5, 1)';
-        ref.current.style.transform = t;
-      }
+    document.querySelectorAll<HTMLElement>('.mascot-pupil').forEach(p => {
+      p.style.transition = 'transform 0.4s cubic-bezier(0.25,1,0.5,1)';
+      p.style.transform = t;
     });
   };
   const unlockGaze = () => {
     pupilsLockedRef.current = false;
-    [pupilLRef, pupilRRef].forEach(ref => {
-      if (ref.current) ref.current.style.transition = 'transform 0.07s ease-out';
+    document.querySelectorAll<HTMLElement>('.mascot-pupil').forEach(p => {
+      p.style.transition = 'transform 0.07s ease-out';
     });
   };
 
-  /* ── Field focus handlers ───────────────────────────── */
+  /* ── Field handlers ───────────────────────────────────────── */
   const onEmailFocus = () => { setMascotState('curious'); lockGaze(6, 3); };
   const onEmailBlur  = () => { setMascotState(''); unlockGaze(); };
-
   const onPassFocus  = () => { setMascotState('shy'); lockGaze(-8, -5); };
   const onPassBlur   = () => {
     if (!isPasswordVisible) { setMascotState(''); unlockGaze(); }
   };
 
-  /* ── Show / hide password ───────────────────────────── */
+  /* ── Toggle password ─────────────────────────────────────── */
   const togglePassword = () => {
     const next = !isPasswordVisible;
     setIsPasswordVisible(next);
-    if (next) {
-      // Password revealed → cover eyes
-      setMascotState('cover-eyes shy');
-      lockGaze(0, 0);
-    } else {
-      // Password hidden → return to shy if still focused, else normal
-      setMascotState('');
-      unlockGaze();
-    }
+    if (next) { setMascotState('cover-eyes shy'); lockGaze(0, 0); }
+    else       { setMascotState(''); unlockGaze(); }
   };
 
-  /* ── Form submit ────────────────────────────────────── */
+  /* ── Submit ─────────────────────────────────────────────── */
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    setIsLoading(true);
-    setError('');
+    setIsLoading(true); setError('');
     try {
-      const result = await onLogin(email, password);
-      if (!result.success) setError(result.error || 'Invalid email or password');
-    } catch {
-      setError('An unexpected error occurred. Please try again.');
-    } finally {
-      setIsLoading(false);
-    }
+      const res = await onLogin(email, password);
+      if (!res.success) setError(res.error || 'Invalid email or password');
+    } catch { setError('An unexpected error occurred.'); }
+    finally   { setIsLoading(false); }
   };
 
   const handleForgotSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!forgotEmail.includes('@')) { setError('Please enter a valid email address'); return; }
-    setIsLoading(true);
-    setError('');
-    setForgotSuccess('');
+    setIsLoading(true); setError(''); setForgotSuccess('');
     try {
       const { sendPasswordResetEmail } = await import('../services/authService');
       await sendPasswordResetEmail(forgotEmail);
       setForgotSuccess(`Reset link sent to ${forgotEmail}! Check your email.`);
-    } catch (err: any) {
-      setError(err.message || 'Failed to send reset email. Please try again.');
-    } finally {
-      setIsLoading(false);
-    }
+    } catch (err: any) { setError(err.message || 'Failed to send reset email.'); }
+    finally { setIsLoading(false); }
   };
 
   // Background particles
-  const particles = Array.from({ length: 15 }).map((_, i) => ({
+  const particles = Array.from({ length: 12 }).map((_, i) => ({
     id: i,
     size: Math.random() * 60 + 20,
     x: Math.random() * 100,
@@ -226,44 +206,55 @@ const LoginPage: React.FC<LoginPageProps> = ({ onLogin, onGoogleLogin, onSignup 
   return (
     <div className="min-h-screen cinematic-gradient flex items-center justify-center p-4 selection:bg-blue-500/30 relative overflow-hidden">
 
-      {/* Animated background particles */}
+      {/* Background particles */}
       <div className="absolute inset-0 z-0 pointer-events-none overflow-hidden">
-        {particles.map((p) => (
-          <motion.div
-            key={p.id}
+        {particles.map(p => (
+          <motion.div key={p.id}
             className="absolute rounded-full bg-blue-400/10 blur-xl"
             style={{ width: p.size, height: p.size, left: `${p.x}%`, top: `${p.y}%` }}
-            animate={{ y: [0, -100, 0], x: [0, Math.random() * 50 - 25, 0], opacity: [0.1, 0.3, 0.1] }}
-            transition={{ duration: p.duration, repeat: Infinity, delay: p.delay, ease: "easeInOut" }}
+            animate={{ y:[0,-100,0], x:[0, Math.random()*50-25,0], opacity:[0.1,0.3,0.1] }}
+            transition={{ duration:p.duration, repeat:Infinity, delay:p.delay, ease:'easeInOut' }}
           />
         ))}
         <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-96 h-96 bg-indigo-500/20 rounded-full blur-[100px]" />
       </div>
 
-      <div className="max-w-md w-full relative z-10">
+      {/* ── Three-column layout ────────────────────────────── */}
+      <div
+        className="relative z-10 flex items-center justify-center gap-8 w-full"
+        style={{ maxWidth: 900 }}
+      >
 
-        {/* ── Pure CSS Mascot (replaces old Mascot3D) ── */}
+        {/* LEFT column — 2 mascots stacked */}
         {!showForgotView && (
           <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
+            initial={{ opacity: 0, x: -40 }}
+            animate={{ opacity: 1, x: 0 }}
             transition={{ duration: 0.6 }}
-            className="flex justify-center mb-2"
+            className="hidden lg:flex flex-col items-center gap-8"
           >
             <CSSMascot
+              colorClass="yellow"
+              name="Buddy"
               stateClass={mascotState}
-              pupilLRef={pupilLRef}
-              pupilRRef={pupilRRef}
+              mascotId="m1"
+            />
+            <CSSMascot
+              colorClass="teal"
+              name="Scout"
+              stateClass={mascotState}
+              mascotId="m2"
             />
           </motion.div>
         )}
 
-        {/* ── Login Card ── */}
+        {/* CENTER — Login Card */}
         <motion.div
-          initial={{ opacity: 0, scale: 0.95, y: 20 }}
+          initial={{ opacity: 0, scale: 0.95, y: 24 }}
           animate={{ opacity: 1, scale: 1, y: 0 }}
-          transition={{ duration: 0.5, delay: 0.1 }}
-          className="glass-panel overflow-hidden w-full shadow-2xl border border-white/20"
+          transition={{ duration: 0.5, delay: 0.12 }}
+          className="glass-panel overflow-hidden shadow-2xl border border-white/20 flex-shrink-0"
+          style={{ width: 400 }}
         >
           <div className="p-10 border-b border-slate-100/50 text-center relative overflow-hidden bg-white/40 backdrop-blur-md">
             <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-blue-400 via-indigo-500 to-purple-500" />
@@ -279,14 +270,10 @@ const LoginPage: React.FC<LoginPageProps> = ({ onLogin, onGoogleLogin, onSignup 
 
           <div className="p-10 bg-white/40">
             {error && (
-              <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-xl text-sm mb-6 fade-in">
-                {error}
-              </div>
+              <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-xl text-sm mb-6 fade-in">{error}</div>
             )}
             {forgotSuccess && (
-              <div className="bg-emerald-50 border border-emerald-200 text-emerald-700 px-4 py-3 rounded-xl text-sm mb-6 fade-in">
-                {forgotSuccess}
-              </div>
+              <div className="bg-emerald-50 border border-emerald-200 text-emerald-700 px-4 py-3 rounded-xl text-sm mb-6 fade-in">{forgotSuccess}</div>
             )}
 
             {!showForgotView ? (
@@ -295,18 +282,13 @@ const LoginPage: React.FC<LoginPageProps> = ({ onLogin, onGoogleLogin, onSignup 
 
                   {/* Email */}
                   <div className="group">
-                    <label className="block text-[11px] font-bold text-slate-500 uppercase tracking-widest mb-2 pl-1 transition-colors group-focus-within:text-blue-500">
-                      Email
-                    </label>
+                    <label className="block text-[11px] font-bold text-slate-500 uppercase tracking-widest mb-2 pl-1 transition-colors group-focus-within:text-blue-500">Email</label>
                     <div className="relative">
                       <Icons.Profile className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 group-focus-within:text-blue-500 transition-colors" size={18} />
                       <input
-                        required
-                        type="email"
-                        value={email}
-                        onChange={(e) => setEmail(e.target.value)}
-                        onFocus={onEmailFocus}
-                        onBlur={onEmailBlur}
+                        required type="email" value={email}
+                        onChange={e => setEmail(e.target.value)}
+                        onFocus={onEmailFocus} onBlur={onEmailBlur}
                         placeholder="doctor@medical.com"
                         className="input-premium pl-11 bg-white/60"
                       />
@@ -315,28 +297,19 @@ const LoginPage: React.FC<LoginPageProps> = ({ onLogin, onGoogleLogin, onSignup 
 
                   {/* Password */}
                   <div className="group">
-                    <label className="block text-[11px] font-bold text-slate-500 uppercase tracking-widest mb-2 pl-1 transition-colors group-focus-within:text-blue-500">
-                      Password
-                    </label>
+                    <label className="block text-[11px] font-bold text-slate-500 uppercase tracking-widest mb-2 pl-1 transition-colors group-focus-within:text-blue-500">Password</label>
                     <div className="relative">
                       <Icons.Settings className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 group-focus-within:text-blue-500 transition-colors" size={18} />
                       <input
-                        required
-                        type={isPasswordVisible ? 'text' : 'password'}
-                        value={password}
-                        onChange={(e) => setPassword(e.target.value)}
-                        onFocus={onPassFocus}
-                        onBlur={onPassBlur}
+                        required type={isPasswordVisible ? 'text' : 'password'} value={password}
+                        onChange={e => setPassword(e.target.value)}
+                        onFocus={onPassFocus} onBlur={onPassBlur}
                         placeholder="••••••••"
                         className="input-premium pl-11 pr-11 bg-white/60 font-mono tracking-wider"
                       />
-                      {/* Show/Hide toggle — triggers mascot arm cover */}
-                      <button
-                        type="button"
-                        onClick={togglePassword}
+                      <button type="button" onClick={togglePassword}
                         className="absolute right-4 top-1/2 -translate-y-1/2 text-slate-400 hover:text-blue-500 transition-colors text-base"
-                        tabIndex={-1}
-                        aria-label={isPasswordVisible ? 'Hide password' : 'Show password'}
+                        tabIndex={-1} aria-label={isPasswordVisible ? 'Hide password' : 'Show password'}
                       >
                         {isPasswordVisible ? '🙈' : '👁'}
                       </button>
@@ -346,33 +319,22 @@ const LoginPage: React.FC<LoginPageProps> = ({ onLogin, onGoogleLogin, onSignup 
 
                 <div className="flex items-center justify-between pt-1">
                   <label className="flex items-center gap-2 cursor-pointer group">
-                    <input type="checkbox" className="w-4 h-4 text-blue-600 border-slate-300 rounded focus:ring-blue-500/50 transition-colors" />
+                    <input type="checkbox" className="w-4 h-4 text-blue-600 border-slate-300 rounded focus:ring-blue-500/50" />
                     <span className="text-sm text-slate-500 font-medium group-hover:text-slate-800 transition-colors">Remember me</span>
                   </label>
-                  <button
-                    type="button"
-                    onClick={() => setShowForgotView(true)}
-                    className="text-sm font-semibold text-blue-600 hover:text-blue-800 transition-colors"
-                  >
+                  <button type="button" onClick={() => setShowForgotView(true)}
+                    className="text-sm font-semibold text-blue-600 hover:text-blue-800 transition-colors">
                     Forgot Password?
                   </button>
                 </div>
 
-                <motion.button
-                  type="submit"
-                  disabled={isLoading}
-                  whileHover={{ scale: 1.01 }}
-                  whileTap={{ scale: 0.98 }}
-                  className="btn-primary w-full mt-4 flex items-center justify-center gap-2 overflow-hidden relative group"
-                >
-                  {isLoading ? (
-                    <div className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin" />
-                  ) : (
-                    <>
-                      <span className="relative z-10">Sign In</span>
-                      <Icons.Profile className="w-4 h-4 ml-1 relative z-10 group-hover:translate-x-1 transition-transform" />
-                    </>
-                  )}
+                <motion.button type="submit" disabled={isLoading}
+                  whileHover={{ scale: 1.01 }} whileTap={{ scale: 0.98 }}
+                  className="btn-primary w-full mt-4 flex items-center justify-center gap-2 overflow-hidden relative group">
+                  {isLoading
+                    ? <div className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin" />
+                    : <><span className="relative z-10">Sign In</span><Icons.Profile className="w-4 h-4 ml-1 relative z-10 group-hover:translate-x-1 transition-transform" /></>
+                  }
                 </motion.button>
 
                 <div className="flex items-center gap-4 py-2">
@@ -383,19 +345,9 @@ const LoginPage: React.FC<LoginPageProps> = ({ onLogin, onGoogleLogin, onSignup 
 
                 <div className="flex justify-center w-full">
                   <GoogleLogin
-                    onSuccess={(credentialResponse) => {
-                      if (credentialResponse.credential) {
-                        onGoogleLogin(credentialResponse.credential).then((res) => {
-                          if (!res.success) setError(res.error || 'Google Login failed');
-                        });
-                      }
-                    }}
+                    onSuccess={r => { if (r.credential) onGoogleLogin(r.credential).then(res => { if (!res.success) setError(res.error || 'Google Login failed'); }); }}
                     onError={() => setError('Google Login window closed or failed')}
-                    useOneTap
-                    theme="outline"
-                    size="large"
-                    text="continue_with"
-                    width="100%"
+                    useOneTap theme="outline" size="large" text="continue_with" width="100%"
                   />
                 </div>
               </form>
@@ -405,24 +357,15 @@ const LoginPage: React.FC<LoginPageProps> = ({ onLogin, onGoogleLogin, onSignup 
                   <label className="block text-[11px] font-bold text-slate-500 uppercase tracking-widest mb-2 pl-1">Email Address</label>
                   <div className="relative">
                     <Icons.Profile className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400" size={18} />
-                    <input
-                      required
-                      type="email"
-                      value={forgotEmail}
-                      onChange={(e) => setForgotEmail(e.target.value)}
-                      placeholder="doctor@medical.com"
-                      className="input-premium pl-11 bg-white/60"
-                    />
+                    <input required type="email" value={forgotEmail}
+                      onChange={e => setForgotEmail(e.target.value)}
+                      placeholder="doctor@medical.com" className="input-premium pl-11 bg-white/60" />
                   </div>
                 </div>
                 <div className="flex gap-3 pt-2">
-                  <button
-                    type="button"
+                  <button type="button"
                     onClick={() => { setShowForgotView(false); setError(''); setForgotSuccess(''); }}
-                    className="btn-secondary flex-1"
-                  >
-                    Back
-                  </button>
+                    className="btn-secondary flex-1">Back</button>
                   <button type="submit" disabled={isLoading} className="btn-primary flex-[2]">
                     {isLoading ? <div className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin" /> : 'Send Reset Link'}
                   </button>
@@ -440,6 +383,23 @@ const LoginPage: React.FC<LoginPageProps> = ({ onLogin, onGoogleLogin, onSignup 
             </p>
           </div>
         </motion.div>
+
+        {/* RIGHT column — 1 mascot centered */}
+        {!showForgotView && (
+          <motion.div
+            initial={{ opacity: 0, x: 40 }}
+            animate={{ opacity: 1, x: 0 }}
+            transition={{ duration: 0.6 }}
+            className="hidden lg:flex flex-col items-center justify-center"
+          >
+            <CSSMascot
+              colorClass="pink"
+              name="Luna"
+              stateClass={mascotState}
+              mascotId="m3"
+            />
+          </motion.div>
+        )}
 
       </div>
     </div>

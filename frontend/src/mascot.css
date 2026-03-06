@@ -1,223 +1,236 @@
 /*
  * ============================================================
- *  Pure CSS MediBot Mascot — used inside LoginPage.tsx
+ *  Pure CSS MediBot Mascots — mascot.css
+ *  Three color variants: yellow (.yellow), teal (.teal), pink (.pink)
  *  No SVG · No images · No canvas · No icon libs
  * ============================================================ */
 
-/* ── Mascot wrapper ───────────────────────────────────────── */
+/* ── Wrapper & tag ─────────────────────────────────────────── */
 .mascot-wrap {
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 10px;
-  margin-bottom: 8px;
-  position: relative;
+  gap: 8px;
 }
 .mascot-tag {
-  font-size: 12px;
+  font-size: 11px;
   font-weight: 700;
-  letter-spacing: 0.08em;
+  letter-spacing: 0.07em;
   text-transform: uppercase;
   color: #94a3b8;
+  text-align: center;
 }
 
-/* ── Mascot Body ──────────────────────────────────────────── */
+/* ── Mascot Body ───────────────────────────────────────────── */
 .mascot-body {
   position: relative;
-  width: 130px;
-  height: 136px;
-  background: radial-gradient(circle at 38% 30%, #fff9e0, #ffe680 55%, #f5c200);
+  width: 120px;
+  height: 126px;
   border-radius: 52% 48% 58% 42% / 58% 46% 54% 42%;
-  box-shadow: 0 18px 40px rgba(245, 194, 0, 0.32), inset 0 -6px 16px rgba(245, 194, 0, 0.2);
   animation: mascot-breathe 3.2s ease-in-out infinite;
-  transition: border-radius 0.55s ease;
+  transition: border-radius 0.55s ease, box-shadow 0.4s ease;
+}
+
+/* Yellow variant (default) */
+.mascot-body.yellow {
+  background: radial-gradient(circle at 38% 30%, #fff9e0, #ffe680 55%, #f5c200);
+  box-shadow: 0 16px 36px rgba(245, 194, 0, 0.30), inset 0 -5px 14px rgba(245, 194, 0, 0.2);
+}
+/* Teal variant */
+.mascot-body.teal {
+  background: radial-gradient(circle at 38% 30%, #e0fdf8, #5eead4 55%, #0d9488);
+  box-shadow: 0 16px 36px rgba(13, 148, 136, 0.30), inset 0 -5px 14px rgba(13, 148, 136, 0.2);
+}
+/* Pink variant */
+.mascot-body.pink {
+  background: radial-gradient(circle at 38% 30%, #fff0f7, #f9a8d4 55%, #ec4899);
+  box-shadow: 0 16px 36px rgba(236, 72, 153, 0.28), inset 0 -5px 14px rgba(236, 72, 153, 0.18);
 }
 
 @keyframes mascot-breathe {
-  0%, 100% { transform: scaleY(1) scaleX(1) rotate(-1deg); }
-  50%       { transform: scaleY(1.04) scaleX(0.97) rotate(1deg); }
+  0%, 100% { transform: scaleY(1)   scaleX(1)    rotate(-1deg); }
+  50%       { transform: scaleY(1.04) scaleX(0.97) rotate(1deg);  }
 }
 
-/* Curious state (email focus) */
+/* Curious state */
 .mascot-body.curious {
   border-radius: 50% 50% 56% 44% / 54% 54% 46% 46%;
-  animation: mascot-curious 0.55s ease forwards;
+  animation: mascot-curious 0.5s ease forwards;
 }
 @keyframes mascot-curious {
-  0%   { transform: translateY(0); }
-  35%  { transform: translateY(-10px); }
-  65%  { transform: translateY(3px); }
-  100% { transform: translateY(0); }
+  0%   { transform: translateY(0);    }
+  35%  { transform: translateY(-9px); }
+  65%  { transform: translateY(3px);  }
+  100% { transform: translateY(0);    }
 }
 
-/* Shy state (password focus) */
-.mascot-body.shy .mascot-blush { opacity: 0.9; }
-
-/* ── Antenna ──────────────────────────────────────────────── */
+/* ── Antenna ───────────────────────────────────────────────── */
 .mascot-antenna {
   position: absolute;
   width: 5px;
-  height: 30px;
-  background: linear-gradient(to top, #f5c200, #ffe8a3);
-  top: -28px;
+  height: 26px;
+  top: -24px;
   left: 50%;
   transform: translateX(-50%);
   border-radius: 5px 5px 0 0;
 }
+.yellow .mascot-antenna { background: linear-gradient(to top, #f5c200, #ffe8a3); }
+.teal   .mascot-antenna { background: linear-gradient(to top, #0d9488, #99f6e4); }
+.pink   .mascot-antenna { background: linear-gradient(to top, #ec4899, #fbcfe8); }
+
 .mascot-antenna-ball {
   position: absolute;
-  width: 13px;
-  height: 13px;
-  background: radial-gradient(circle at 35% 30%, #fff, #ff7eb3);
+  width: 12px; height: 12px;
   border-radius: 50%;
-  top: -8px;
+  top: -7px;
   left: 50%;
   transform: translateX(-50%);
   animation: antenna-glow 1.8s ease-in-out infinite;
 }
+.yellow .mascot-antenna-ball { background: radial-gradient(circle at 35% 30%, #fff, #ff9a9e); box-shadow: 0 0 5px 2px rgba(255,154,158,.7); }
+.teal   .mascot-antenna-ball { background: radial-gradient(circle at 35% 30%, #fff, #5eead4); box-shadow: 0 0 5px 2px rgba(94,234,212,.8); }
+.pink   .mascot-antenna-ball { background: radial-gradient(circle at 35% 30%, #fff, #f472b6); box-shadow: 0 0 5px 2px rgba(244,114,182,.8); }
+
 @keyframes antenna-glow {
-  0%,100% { box-shadow: 0 0 5px 2px rgba(255,126,179,0.7); }
-  50%      { box-shadow: 0 0 12px 5px rgba(255,126,179,0.3); }
+  0%,100% { transform: translateX(-50%) scale(1);    opacity: 1; }
+  50%      { transform: translateX(-50%) scale(1.25); opacity: .7; }
 }
 
-/* ── Eyebrows ─────────────────────────────────────────────── */
+/* ── Eyebrows ──────────────────────────────────────────────── */
 .mascot-eyebrow {
   position: absolute;
-  width: 28px;
-  height: 4px;
-  background: #7a5c00;
+  width: 24px; height: 4px;
   border-radius: 8px;
-  top: 36px;
-  transition: transform 0.35s cubic-bezier(0.25, 1, 0.5, 1), top 0.35s ease;
+  top: 30px;
+  transition: transform 0.35s cubic-bezier(0.25,1,0.5,1), top 0.35s ease;
 }
-.mascot-eyebrow.left  { left: 18px;  transform: rotate(-8deg); }
-.mascot-eyebrow.right { right: 18px; transform: rotate(8deg); }
+.yellow .mascot-eyebrow { background: #7a5c00; }
+.teal   .mascot-eyebrow { background: #065f46; }
+.pink   .mascot-eyebrow { background: #9d174d; }
+
+.mascot-eyebrow.left  { left: 14px;  transform: rotate(-8deg); }
+.mascot-eyebrow.right { right: 14px; transform: rotate(8deg);  }
 
 .mascot-body.curious .mascot-eyebrow.left  { transform: rotate(-16deg) translateY(-5px); }
-.mascot-body.curious .mascot-eyebrow.right { transform: rotate(16deg) translateY(-5px); }
-.mascot-body.shy .mascot-eyebrow.left  { transform: rotate(10deg) translateY(3px); }
-.mascot-body.shy .mascot-eyebrow.right { transform: rotate(-10deg) translateY(3px); }
+.mascot-body.curious .mascot-eyebrow.right { transform: rotate(16deg)  translateY(-5px); }
+.mascot-body.shy     .mascot-eyebrow.left  { transform: rotate(10deg)  translateY(3px); }
+.mascot-body.shy     .mascot-eyebrow.right { transform: rotate(-10deg) translateY(3px); }
 
-/* ── Eye Sockets ──────────────────────────────────────────── */
-/*
-  White circles with overflow:hidden.
-  Pupils (dark divs) move inside via JS transform.
-  Eyelids slide down to close eyes.
-*/
+/* ── Eye Sockets ───────────────────────────────────────────── */
 .mascot-eye {
   position: absolute;
-  width: 38px;
-  height: 38px;
+  width: 34px; height: 34px;
   background: #fff;
   border-radius: 50%;
-  top: 46px;
+  top: 40px;
   overflow: hidden;
-  box-shadow: 0 2px 8px rgba(0,0,0,0.12), inset 0 -1px 3px rgba(0,0,0,0.05);
+  box-shadow: 0 2px 7px rgba(0,0,0,.10), inset 0 -1px 3px rgba(0,0,0,.05);
   animation: eye-blink 4s ease-in-out infinite;
 }
-.mascot-eye.left  { left: 14px; }
-.mascot-eye.right { right: 14px; animation-delay: 0.07s; }
+.mascot-eye.left  { left: 10px; }
+.mascot-eye.right { right: 10px; animation-delay: 0.07s; }
 
 @keyframes eye-blink {
-  0%,88%,100% { transform: scaleY(1); }
-  94%          { transform: scaleY(0.07); }
+  0%,88%,100% { transform: scaleY(1);    }
+  94%          { transform: scaleY(0.08); }
 }
 
-/* ── Eyelid ───────────────────────────────────────────────── */
-/*
-  Slides from top: -100% → top: 0 when .cover-eyes is on .mascot-body
-*/
+/* ── Eyelid ────────────────────────────────────────────────── */
 .mascot-eyelid {
   position: absolute;
-  width: 100%;
-  height: 100%;
-  background: #ffe680;
+  width: 100%; height: 100%;
   border-radius: 50%;
   top: -100%;
   left: 0;
-  transition: top 0.35s cubic-bezier(0.6, 0, 0.4, 1);
+  transition: top 0.35s cubic-bezier(0.6,0,0.4,1);
   z-index: 3;
 }
+.yellow .mascot-eyelid { background: #ffe680; }
+.teal   .mascot-eyelid { background: #5eead4; }
+.pink   .mascot-eyelid { background: #f9a8d4; }
+
 .mascot-body.cover-eyes .mascot-eyelid { top: 0; }
 
-/* ── Pupils ───────────────────────────────────────────────── */
-/*
-  Positioned from JS via style.transform = translate(cx,cy)
-  The base CSS centers them; JS offsets up to 8px in any direction.
-*/
+/* ── Pupils ────────────────────────────────────────────────── */
 .mascot-pupil {
   position: absolute;
-  width: 18px;
-  height: 18px;
+  width: 16px; height: 16px;
   background: radial-gradient(circle at 38% 33%, #555, #1a1a2e 70%);
   border-radius: 50%;
-  top: 50%;
-  left: 50%;
+  top: 50%; left: 50%;
   transform: translate(-50%, -50%);
   transition: transform 0.07s ease-out;
   z-index: 2;
 }
 .mascot-pupil-shine {
   position: absolute;
-  width: 6px; height: 6px;
+  width: 5px; height: 5px;
   background: rgba(255,255,255,0.92);
   border-radius: 50%;
-  top: 3px; left: 4px;
+  top: 3px; left: 3px;
 }
 
-/* ── Blush ────────────────────────────────────────────────── */
+/* ── Blush ─────────────────────────────────────────────────── */
 .mascot-blush {
   position: absolute;
-  width: 22px; height: 10px;
-  background: #ffb3c6;
+  width: 20px; height: 9px;
   border-radius: 50%;
   opacity: 0.5;
-  top: 88px;
+  top: 76px;
   filter: blur(3px);
   transition: opacity 0.35s ease;
 }
-.mascot-blush.left  { left: 10px; }
-.mascot-blush.right { right: 10px; }
+.mascot-blush.left  { left: 7px; }
+.mascot-blush.right { right: 7px; }
 
-/* ── Mouth ────────────────────────────────────────────────── */
+.yellow .mascot-blush { background: #ffb3c6; }
+.teal   .mascot-blush { background: #a7f3d0; }
+.pink   .mascot-blush { background: #fda4af; }
+
+.mascot-body.shy .mascot-blush { opacity: 0.9; }
+
+/* ── Mouth ─────────────────────────────────────────────────── */
 .mascot-mouth {
   position: absolute;
-  width: 28px; height: 15px;
-  bottom: 26px;
+  width: 26px; height: 13px;
+  bottom: 22px;
   left: 50%;
   transform: translateX(-50%);
   overflow: hidden;
   transition: height 0.35s ease;
 }
 .mascot-mouth-inner {
-  width: 28px; height: 28px;
-  border: 3px solid #a06000;
+  width: 26px; height: 26px;
   border-radius: 50%;
   position: relative;
   top: 0;
   transition: top 0.35s ease, border-color 0.3s ease;
+  border: 3px solid;
 }
-.mascot-body.curious .mascot-mouth { height: 20px; }
-.mascot-body.curious .mascot-mouth-inner { top: -3px; }
-.mascot-body.shy .mascot-mouth { height: 8px; }
+.yellow .mascot-mouth-inner { border-color: #a06000; }
+.teal   .mascot-mouth-inner { border-color: #065f46; }
+.pink   .mascot-mouth-inner { border-color: #9d174d; }
 
-/* ── Stethoscope (pure CSS divs) ─────────────────────────── */
+.mascot-body.curious .mascot-mouth { height: 18px; }
+.mascot-body.curious .mascot-mouth-inner { top: -3px; }
+.mascot-body.shy .mascot-mouth { height: 7px; }
+
+/* ── Stethoscope ───────────────────────────────────────────── */
 .mascot-steth {
   position: absolute;
-  bottom: 6px;
+  bottom: 5px;
   left: 50%;
   transform: translateX(-50%);
 }
 .mascot-steth-tube {
-  width: 36px;
-  height: 14px;
-  border: 4px solid #455a64;
+  width: 32px; height: 12px;
+  border: 3px solid #455a64;
   border-top: none;
-  border-radius: 0 0 22px 22px;
+  border-radius: 0 0 18px 18px;
   margin: 0 auto;
 }
 .mascot-steth-head {
-  width: 10px; height: 10px;
+  width: 9px; height: 9px;
   background: #eceff1;
   border: 3px solid #455a64;
   border-radius: 50%;
@@ -225,40 +238,34 @@
   margin-top: -2px;
 }
 
-/* ── Arms ─────────────────────────────────────────────────── */
-/*
-  Arms rotate from shoulder (transform-origin: top center).
-  .cover-eyes swings them upward over the face.
-*/
+/* ── Arms ──────────────────────────────────────────────────── */
 .mascot-arm {
   position: absolute;
-  width: 12px; height: 50px;
-  background: linear-gradient(to bottom, #f5c200, #ffe8a3);
-  border-radius: 8px;
-  bottom: 22px;
-  transition: transform 0.45s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+  width: 11px; height: 44px;
+  border-radius: 7px;
+  bottom: 20px;
+  transition: transform 0.45s cubic-bezier(0.175,0.885,0.32,1.275);
 }
-.mascot-arm.left {
-  left: -8px;
-  transform-origin: top center;
-  transform: rotate(10deg);
-}
-.mascot-arm.right {
-  right: -8px;
-  transform-origin: top center;
-  transform: rotate(-10deg);
-}
+.yellow .mascot-arm { background: linear-gradient(to bottom, #f5c200, #ffe8a3); }
+.teal   .mascot-arm { background: linear-gradient(to bottom, #0d9488, #99f6e4); }
+.pink   .mascot-arm { background: linear-gradient(to bottom, #ec4899, #fbcfe8); }
+
+.mascot-arm.left  { left: -7px;  transform-origin: top center; transform: rotate(10deg); }
+.mascot-arm.right { right: -7px; transform-origin: top center; transform: rotate(-10deg); }
+
 .mascot-hand {
-  width: 18px; height: 18px;
-  background: radial-gradient(circle at 40% 30%, #fff9e0, #f5c200);
+  width: 17px; height: 17px;
   border-radius: 50%;
   position: absolute;
-  bottom: -8px;
+  bottom: -7px;
   left: 50%;
   transform: translateX(-50%);
-  box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+  box-shadow: 0 2px 4px rgba(0,0,0,.1);
 }
+.yellow .mascot-hand { background: radial-gradient(circle at 40% 30%, #fff9e0, #f5c200); }
+.teal   .mascot-hand { background: radial-gradient(circle at 40% 30%, #e0fdf8, #0d9488); }
+.pink   .mascot-hand { background: radial-gradient(circle at 40% 30%, #fff0f7, #ec4899); }
 
-/* Cover-eyes: arms rotate up to face */
-.mascot-body.cover-eyes .mascot-arm.left  { transform: rotate(-145deg) translate(-8px, -8px); }
-.mascot-body.cover-eyes .mascot-arm.right { transform: rotate(145deg) translate(8px, -8px); }
+/* Cover-eyes */
+.mascot-body.cover-eyes .mascot-arm.left  { transform: rotate(-145deg) translate(-8px,-8px); }
+.mascot-body.cover-eyes .mascot-arm.right { transform: rotate(145deg)  translate(8px, -8px); }
