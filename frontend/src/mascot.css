@@ -1,0 +1,264 @@
+/*
+ * ============================================================
+ *  Pure CSS MediBot Mascot — used inside LoginPage.tsx
+ *  No SVG · No images · No canvas · No icon libs
+ * ============================================================ */
+
+/* ── Mascot wrapper ───────────────────────────────────────── */
+.mascot-wrap {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 8px;
+  position: relative;
+}
+.mascot-tag {
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: #94a3b8;
+}
+
+/* ── Mascot Body ──────────────────────────────────────────── */
+.mascot-body {
+  position: relative;
+  width: 130px;
+  height: 136px;
+  background: radial-gradient(circle at 38% 30%, #fff9e0, #ffe680 55%, #f5c200);
+  border-radius: 52% 48% 58% 42% / 58% 46% 54% 42%;
+  box-shadow: 0 18px 40px rgba(245, 194, 0, 0.32), inset 0 -6px 16px rgba(245, 194, 0, 0.2);
+  animation: mascot-breathe 3.2s ease-in-out infinite;
+  transition: border-radius 0.55s ease;
+}
+
+@keyframes mascot-breathe {
+  0%, 100% { transform: scaleY(1) scaleX(1) rotate(-1deg); }
+  50%       { transform: scaleY(1.04) scaleX(0.97) rotate(1deg); }
+}
+
+/* Curious state (email focus) */
+.mascot-body.curious {
+  border-radius: 50% 50% 56% 44% / 54% 54% 46% 46%;
+  animation: mascot-curious 0.55s ease forwards;
+}
+@keyframes mascot-curious {
+  0%   { transform: translateY(0); }
+  35%  { transform: translateY(-10px); }
+  65%  { transform: translateY(3px); }
+  100% { transform: translateY(0); }
+}
+
+/* Shy state (password focus) */
+.mascot-body.shy .mascot-blush { opacity: 0.9; }
+
+/* ── Antenna ──────────────────────────────────────────────── */
+.mascot-antenna {
+  position: absolute;
+  width: 5px;
+  height: 30px;
+  background: linear-gradient(to top, #f5c200, #ffe8a3);
+  top: -28px;
+  left: 50%;
+  transform: translateX(-50%);
+  border-radius: 5px 5px 0 0;
+}
+.mascot-antenna-ball {
+  position: absolute;
+  width: 13px;
+  height: 13px;
+  background: radial-gradient(circle at 35% 30%, #fff, #ff7eb3);
+  border-radius: 50%;
+  top: -8px;
+  left: 50%;
+  transform: translateX(-50%);
+  animation: antenna-glow 1.8s ease-in-out infinite;
+}
+@keyframes antenna-glow {
+  0%,100% { box-shadow: 0 0 5px 2px rgba(255,126,179,0.7); }
+  50%      { box-shadow: 0 0 12px 5px rgba(255,126,179,0.3); }
+}
+
+/* ── Eyebrows ─────────────────────────────────────────────── */
+.mascot-eyebrow {
+  position: absolute;
+  width: 28px;
+  height: 4px;
+  background: #7a5c00;
+  border-radius: 8px;
+  top: 36px;
+  transition: transform 0.35s cubic-bezier(0.25, 1, 0.5, 1), top 0.35s ease;
+}
+.mascot-eyebrow.left  { left: 18px;  transform: rotate(-8deg); }
+.mascot-eyebrow.right { right: 18px; transform: rotate(8deg); }
+
+.mascot-body.curious .mascot-eyebrow.left  { transform: rotate(-16deg) translateY(-5px); }
+.mascot-body.curious .mascot-eyebrow.right { transform: rotate(16deg) translateY(-5px); }
+.mascot-body.shy .mascot-eyebrow.left  { transform: rotate(10deg) translateY(3px); }
+.mascot-body.shy .mascot-eyebrow.right { transform: rotate(-10deg) translateY(3px); }
+
+/* ── Eye Sockets ──────────────────────────────────────────── */
+/*
+  White circles with overflow:hidden.
+  Pupils (dark divs) move inside via JS transform.
+  Eyelids slide down to close eyes.
+*/
+.mascot-eye {
+  position: absolute;
+  width: 38px;
+  height: 38px;
+  background: #fff;
+  border-radius: 50%;
+  top: 46px;
+  overflow: hidden;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.12), inset 0 -1px 3px rgba(0,0,0,0.05);
+  animation: eye-blink 4s ease-in-out infinite;
+}
+.mascot-eye.left  { left: 14px; }
+.mascot-eye.right { right: 14px; animation-delay: 0.07s; }
+
+@keyframes eye-blink {
+  0%,88%,100% { transform: scaleY(1); }
+  94%          { transform: scaleY(0.07); }
+}
+
+/* ── Eyelid ───────────────────────────────────────────────── */
+/*
+  Slides from top: -100% → top: 0 when .cover-eyes is on .mascot-body
+*/
+.mascot-eyelid {
+  position: absolute;
+  width: 100%;
+  height: 100%;
+  background: #ffe680;
+  border-radius: 50%;
+  top: -100%;
+  left: 0;
+  transition: top 0.35s cubic-bezier(0.6, 0, 0.4, 1);
+  z-index: 3;
+}
+.mascot-body.cover-eyes .mascot-eyelid { top: 0; }
+
+/* ── Pupils ───────────────────────────────────────────────── */
+/*
+  Positioned from JS via style.transform = translate(cx,cy)
+  The base CSS centers them; JS offsets up to 8px in any direction.
+*/
+.mascot-pupil {
+  position: absolute;
+  width: 18px;
+  height: 18px;
+  background: radial-gradient(circle at 38% 33%, #555, #1a1a2e 70%);
+  border-radius: 50%;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  transition: transform 0.07s ease-out;
+  z-index: 2;
+}
+.mascot-pupil-shine {
+  position: absolute;
+  width: 6px; height: 6px;
+  background: rgba(255,255,255,0.92);
+  border-radius: 50%;
+  top: 3px; left: 4px;
+}
+
+/* ── Blush ────────────────────────────────────────────────── */
+.mascot-blush {
+  position: absolute;
+  width: 22px; height: 10px;
+  background: #ffb3c6;
+  border-radius: 50%;
+  opacity: 0.5;
+  top: 88px;
+  filter: blur(3px);
+  transition: opacity 0.35s ease;
+}
+.mascot-blush.left  { left: 10px; }
+.mascot-blush.right { right: 10px; }
+
+/* ── Mouth ────────────────────────────────────────────────── */
+.mascot-mouth {
+  position: absolute;
+  width: 28px; height: 15px;
+  bottom: 26px;
+  left: 50%;
+  transform: translateX(-50%);
+  overflow: hidden;
+  transition: height 0.35s ease;
+}
+.mascot-mouth-inner {
+  width: 28px; height: 28px;
+  border: 3px solid #a06000;
+  border-radius: 50%;
+  position: relative;
+  top: 0;
+  transition: top 0.35s ease, border-color 0.3s ease;
+}
+.mascot-body.curious .mascot-mouth { height: 20px; }
+.mascot-body.curious .mascot-mouth-inner { top: -3px; }
+.mascot-body.shy .mascot-mouth { height: 8px; }
+
+/* ── Stethoscope (pure CSS divs) ─────────────────────────── */
+.mascot-steth {
+  position: absolute;
+  bottom: 6px;
+  left: 50%;
+  transform: translateX(-50%);
+}
+.mascot-steth-tube {
+  width: 36px;
+  height: 14px;
+  border: 4px solid #455a64;
+  border-top: none;
+  border-radius: 0 0 22px 22px;
+  margin: 0 auto;
+}
+.mascot-steth-head {
+  width: 10px; height: 10px;
+  background: #eceff1;
+  border: 3px solid #455a64;
+  border-radius: 50%;
+  margin: 0 auto;
+  margin-top: -2px;
+}
+
+/* ── Arms ─────────────────────────────────────────────────── */
+/*
+  Arms rotate from shoulder (transform-origin: top center).
+  .cover-eyes swings them upward over the face.
+*/
+.mascot-arm {
+  position: absolute;
+  width: 12px; height: 50px;
+  background: linear-gradient(to bottom, #f5c200, #ffe8a3);
+  border-radius: 8px;
+  bottom: 22px;
+  transition: transform 0.45s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+}
+.mascot-arm.left {
+  left: -8px;
+  transform-origin: top center;
+  transform: rotate(10deg);
+}
+.mascot-arm.right {
+  right: -8px;
+  transform-origin: top center;
+  transform: rotate(-10deg);
+}
+.mascot-hand {
+  width: 18px; height: 18px;
+  background: radial-gradient(circle at 40% 30%, #fff9e0, #f5c200);
+  border-radius: 50%;
+  position: absolute;
+  bottom: -8px;
+  left: 50%;
+  transform: translateX(-50%);
+  box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+}
+
+/* Cover-eyes: arms rotate up to face */
+.mascot-body.cover-eyes .mascot-arm.left  { transform: rotate(-145deg) translate(-8px, -8px); }
+.mascot-body.cover-eyes .mascot-arm.right { transform: rotate(145deg) translate(8px, -8px); }
