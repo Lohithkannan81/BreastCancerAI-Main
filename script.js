@@ -1,149 +1,175 @@
+/**
+ * ╔════════════════════════════════════════════╗
+ * ║  MediBot Mascot — Interaction Script       ║
+ * ║  Pure HTML/CSS mascot with JS reactions    ║
+ * ╚════════════════════════════════════════════╝
+ *
+ * Interactions handled here:
+ *  1. Pupil tracking  — follows mouse cursor via element-relative offset
+ *  2. Email focus     — mascot looks toward the form (curious)
+ *  3. Password focus  — mascot looks away slightly (shy)
+ *  4. Show password   — arms sweep over eyes (.cover-eyes class)
+ *  5. Hide password   — arms return, eyes open
+ *  6. Submit click    — playful ripple animation on button
+ */
+
 document.addEventListener("DOMContentLoaded", () => {
-    const mascots = document.querySelectorAll('.mascot');
-    
-    // Using a common selector for all pupils
-    const usernameInput = document.getElementById('username');
-    const passwordInput = document.getElementById('password');
-    const togglePasswordBtn = document.getElementById('toggle-password');
-    const eyeIcon = document.getElementById('eye-icon');
-    
-    let isFocused = false;
-    let typedPassword = false;
-    
-    // Toggles pupil smooth transition state
-    function setSmooth(smooth) {
-        mascots.forEach(m => {
-            if (smooth) {
-                m.classList.add('smooth-pupil');
-            } else {
-                m.classList.remove('smooth-pupil');
-            }
-        });
+
+  /* ── Element references ──────────────────────────────────── */
+  const mascot      = document.getElementById("mascot");
+  const pupilL      = document.getElementById("pupilL");
+  const pupilR      = document.getElementById("pupilR");
+  const eyebrowL    = document.getElementById("ebL");
+  const eyebrowR    = document.getElementById("ebR");
+  const emailInput  = document.getElementById("email");
+  const passInput   = document.getElementById("password");
+  const toggleBtn   = document.getElementById("toggle-pass");
+  const eyeGlyph    = document.getElementById("eye-glyph");
+  const submitBtn   = document.getElementById("submit-btn");
+  const loginForm   = document.getElementById("login-form");
+
+  /* ── State ───────────────────────────────────────────────── */
+  let pupilsLocked = false;   // true when mascot is in a fixed-gaze state
+  let passwordVisible = false;
+  let blinkInterval;
+
+  /* ── 1. PUPIL TRACKING
+   *
+   *  On every mousemove, we find the center of each eye socket,
+   *  compute the angle to the cursor, and move the pupil div
+   *  up to MAX_OFFSET pixels in that direction.
+   *  This gives a realistic "eyes follow cursor" effect using
+   *  only CSS transform: translate().
+   * ──────────────────────────────────────────────────────── */
+  const MAX_OFFSET = 10; // px — how far a pupil can travel inside the socket
+
+  function trackPupil(pupilEl, cursorX, cursorY) {
+    const socket = pupilEl.closest(".eye-socket");
+    const rect   = socket.getBoundingClientRect();
+    const cx     = rect.left + rect.width  / 2;
+    const cy     = rect.top  + rect.height / 2;
+
+    const angle  = Math.atan2(cursorY - cy, cursorX - cx);
+    const dist   = Math.min(
+      MAX_OFFSET,
+      Math.hypot(cursorX - cx, cursorY - cy) / 10
+    );
+
+    const dx = Math.cos(angle) * dist;
+    const dy = Math.sin(angle) * dist;
+
+    // We keep the base translate(-50%, -50%) centering via CSS,
+    // and add our offset on top
+    pupilEl.style.transform = `translate(calc(-50% + ${dx}px), calc(-50% + ${dy}px))`;
+  }
+
+  document.addEventListener("mousemove", (e) => {
+    if (pupilsLocked) return;
+    trackPupil(pupilL, e.clientX, e.clientY);
+    trackPupil(pupilR, e.clientX, e.clientY);
+  });
+
+  /* Helper: lock pupils to a fixed offset instantly */
+  function lockGaze(dx, dy) {
+    pupilsLocked = true;
+    const t = `translate(calc(-50% + ${dx}px), calc(-50% + ${dy}px))`;
+    // Use smooth transition when locking
+    pupilL.style.transition = "transform 0.4s cubic-bezier(0.25, 1, 0.5, 1)";
+    pupilR.style.transition = "transform 0.4s cubic-bezier(0.25, 1, 0.5, 1)";
+    pupilL.style.transform = t;
+    pupilR.style.transform = t;
+  }
+
+  function unlockGaze() {
+    pupilsLocked = false;
+    // Restore fast tracking transition
+    pupilL.style.transition = "transform 0.07s ease-out";
+    pupilR.style.transition = "transform 0.07s ease-out";
+  }
+
+  /* ── 2. EMAIL FIELD FOCUS
+   *
+   *  Mascot becomes "curious" — eyebrows raise, mouth opens,
+   *  and pupils shift right toward the form.
+   * ──────────────────────────────────────────────────────── */
+  emailInput.addEventListener("focus", () => {
+    mascot.classList.remove("shy", "cover-eyes");
+    mascot.classList.add("curious");
+    lockGaze(6, 3);
+  });
+
+  emailInput.addEventListener("blur", () => {
+    mascot.classList.remove("curious");
+    unlockGaze();
+  });
+
+  /* ── 3. PASSWORD FIELD FOCUS
+   *
+   *  Mascot becomes "shy" — pupils look away (up-left),
+   *  blush intensifies, eyebrows droop.
+   * ──────────────────────────────────────────────────────── */
+  passInput.addEventListener("focus", () => {
+    mascot.classList.remove("curious");
+    mascot.classList.add("shy");
+    lockGaze(-8, -5); // look subtly away
+  });
+
+  passInput.addEventListener("blur", () => {
+    // Only remove shy if password isn't being shown
+    if (!passwordVisible) {
+      mascot.classList.remove("shy");
+      unlockGaze();
     }
+  });
 
-    // Move pupils toward a specific vector
-    function lookAt(x, y) {
-        mascots.forEach(mascot => {
-            const pupils = mascot.querySelectorAll('.pupil');
-            pupils.forEach(pupil => {
-                pupil.style.transform = `translate(${x}px, ${y}px)`;
-            });
-        });
+  /* ── 4 & 5. SHOW / HIDE PASSWORD TOGGLE
+   *
+   *  SHOW: adds .cover-eyes → CSS slides eyelids down (eyes closed)
+   *         and rotates arms up to cover the face.
+   *  HIDE: removes .cover-eyes → eyelids slide back up, arms return.
+   * ──────────────────────────────────────────────────────── */
+  toggleBtn.addEventListener("click", () => {
+    passwordVisible = !passwordVisible;
+
+    if (passwordVisible) {
+      /* ── SHOW password ─────────────────────── */
+      passInput.type = "text";
+      eyeGlyph.textContent = "🙈"; // closed-eyes emoji on button
+      mascot.classList.add("cover-eyes", "shy");
+      lockGaze(0, 0);              // pupils centered before being hidden
+      toggleBtn.setAttribute("aria-label", "Hide password");
+
+    } else {
+      /* ── HIDE password ─────────────────────── */
+      passInput.type = "password";
+      eyeGlyph.textContent = "👁";
+      mascot.classList.remove("cover-eyes");
+      // Keep shy state if password field is still focused
+      if (document.activeElement !== passInput) {
+        mascot.classList.remove("shy");
+        unlockGaze();
+      } else {
+        lockGaze(-8, -5); // return to shy gaze
+      }
+      toggleBtn.setAttribute("aria-label", "Show password");
     }
+  });
 
-    // 1. Cursor Tracking
-    document.addEventListener("mousemove", (e) => {
-        // Stop tracking if interacting with the form entirely
-        if (isFocused) return;
-        
-        const mouseX = e.clientX;
-        const mouseY = e.clientY;
-        
-        mascots.forEach(mascot => {
-            // Find center of each mascot
-            const rect = mascot.getBoundingClientRect();
-            const mascotX = rect.left + rect.width / 2;
-            const mascotY = rect.top + rect.height / 2;
-            
-            // Calc angle and cap distance
-            const angle = Math.atan2(mouseY - mascotY, mouseX - mascotX);
-            const distance = Math.min(6, Math.hypot(mouseX - mascotX, mouseY - mascotY) / 25);
-            
-            const pupilX = Math.cos(angle) * distance;
-            const pupilY = Math.sin(angle) * distance;
-            
-            const pupils = mascot.querySelectorAll('.pupil');
-            pupils.forEach(pupil => {
-                pupil.style.transform = `translate(${pupilX}px, ${pupilY}px)`;
-            });
-        });
-    });
-    
-    // 2. Username Interaction (look down/right toward input)
-    usernameInput.addEventListener('focus', () => {
-        isFocused = true;
-        setSmooth(true);
-        lookAt(5, 3); // Shift pupils explicitly right and slightly down
-    });
-    
-    usernameInput.addEventListener('blur', () => {
-        isFocused = false;
-        setSmooth(false);
-        lookAt(0, 0); // Reset tracking baseline
-    });
-    
-    // 3. Password Interaction (shy / look away)
-    passwordInput.addEventListener('focus', () => {
-        isFocused = true;
-        setSmooth(true);
-        lookAt(-4, -4); // Look towards top left slightly
-    });
-    
-    passwordInput.addEventListener('blur', () => {
-        isFocused = false;
-        setSmooth(false);
-        lookAt(0, 0);
-        typedPassword = false;
-    });
+  /* ── 6. SUBMIT BUTTON — playful ripple ────────── */
+  submitBtn.addEventListener("click", () => {
+    submitBtn.classList.remove("ripple-anim");
 
-    // 4. Typing in Password (shy reaction)
-    passwordInput.addEventListener('input', () => {
-        if (!typedPassword) {
-            lookAt(-6, -5); // Look further away shyly
-            typedPassword = true;
-        }
-        
-        // Small bounce per keystroke — done via temporary scale transform
-        mascots.forEach(m => {
-            m.style.transform = 'scale(0.97)';
-            setTimeout(() => {
-                m.style.transform = 'scale(1)';
-            }, 80);
-        });
-    });
-    
-    // 5. Show/Hide Password Button
-    togglePasswordBtn.addEventListener('click', () => {
-        if (passwordInput.type === 'password') {
-            passwordInput.type = 'text';
-            
-            // Add cover eyes class (triggers CSS arm transform)
-            mascots.forEach(m => m.classList.add('cover-eyes'));
-            
-            // Swap to Eye Off Icon
-            eyeIcon.innerHTML = `
-              <path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19m-6.72-1.07a3 3 0 1 1-4.24-4.24"></path>
-              <line x1="1" y1="1" x2="23" y2="23"></line>
-            `;
-        } else {
-            passwordInput.type = 'password';
-            
-            // Remove class to uncover eyes
-            mascots.forEach(m => m.classList.remove('cover-eyes'));
-            
-            // Swap back to Eye On Icon
-            eyeIcon.innerHTML = `
-              <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path>
-              <circle cx="12" cy="12" r="3"></circle>
-            `;
-        }
-    });
+    // Trigger re-flow so animation restarts even on repeated clicks
+    void submitBtn.offsetWidth;
+    submitBtn.classList.add("ripple-anim");
 
-    // Submit button click — causes a fun staggered bounce
-    document.querySelector('.submit-btn').addEventListener('click', () => {
-        mascots.forEach((m, idx) => {
-            setTimeout(() => {
-                m.style.transition = 'transform 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275)';
-                m.style.transform = 'scale(1.12)';
-                setTimeout(() => {
-                     m.style.transform = 'scale(1)';
-                }, 300);
-            }, idx * 100);
-        });
-    });
+    // Mascot reacts with a happy curious bounce
+    mascot.classList.add("curious");
+    setTimeout(() => mascot.classList.remove("curious"), 700);
+  });
 
-    // Prevent default form submission
-    document.getElementById('login-form').addEventListener('submit', (e) => {
-        e.preventDefault();
-    });
+  loginForm.addEventListener("submit", (e) => {
+    e.preventDefault(); // showcase only
+  });
+
 });

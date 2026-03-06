@@ -1,153 +1,173 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Healthcare AI Login</title>
-    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="styles.css">
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Healthcare AI Login</title>
+  <meta name="description" content="Healthcare AI Assistant secure login portal"/>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700;800&display=swap">
+  <link rel="stylesheet" href="styles.css"/>
 </head>
 <body>
-    <div class="container">
-        <!-- Mascots Section -->
-        <div class="mascots-container">
-            <!-- Mascot 1: Robot -->
-            <svg class="mascot mascot-robot" viewBox="0 0 200 200" xmlns="http://www.w3.org/2000/svg">
-                <defs>
-                    <linearGradient id="robotGrad" x1="0%" y1="0%" x2="100%" y2="100%">
-                        <stop offset="0%" stop-color="#E0F7FA"/>
-                        <stop offset="100%" stop-color="#80DEEA"/>
-                    </linearGradient>
-                </defs>
-                <rect x="50" y="60" width="100" height="90" rx="30" fill="url(#robotGrad)" class="body-shape" />
-                
-                <!-- Antenna -->
-                <line x1="100" y1="60" x2="100" y2="30" stroke="#00BCD4" stroke-width="6"/>
-                <circle cx="100" cy="30" r="10" fill="#00BCD4" class="breathing-glow"/>
-                
-                <!-- Stethoscope -->
-                <path d="M 60 120 C 60 160, 140 160, 140 120" stroke="#455A64" stroke-width="6" fill="none"/>
-                <path d="M 140 120 L 140 100" stroke="#455A64" stroke-width="6" fill="none"/>
-                <circle cx="140" cy="95" r="8" fill="#ECEFF1" stroke="#455A64" stroke-width="4"/>
-                
-                <!-- Eyes -->
-                <g class="eyes">
-                    <circle cx="75" cy="95" r="16" fill="white" stroke="#B2EBF2" stroke-width="2"/>
-                    <circle cx="125" cy="95" r="16" fill="white" stroke="#B2EBF2" stroke-width="2"/>
-                    <g class="pupils">
-                        <circle cx="75" cy="95" r="8" fill="#263238" class="pupil"/>
-                        <circle cx="125" cy="95" r="8" fill="#263238" class="pupil"/>
-                    </g>
-                </g>
 
-                <!-- Arms (initially resting beside body) -->
-                <g class="arms">
-                    <path d="M 30 125 C 20 135, 20 145, 30 155" stroke="#80DEEA" stroke-width="16" stroke-linecap="round" fill="none" class="arm arm-left"/>
-                    <path d="M 170 125 C 180 135, 180 145, 170 155" stroke="#80DEEA" stroke-width="16" stroke-linecap="round" fill="none" class="arm arm-right"/>
-                </g>
-            </svg>
-            
-            <!-- Mascot 2: Hamster -->
-            <svg class="mascot mascot-hamster" viewBox="0 0 200 200" xmlns="http://www.w3.org/2000/svg">
-                <defs>
-                    <linearGradient id="hamsterGrad" x1="0%" y1="0%" x2="100%" y2="100%">
-                        <stop offset="0%" stop-color="#FFE0B2"/>
-                        <stop offset="100%" stop-color="#FFB74D"/>
-                    </linearGradient>
-                </defs>
-                <!-- Ears -->
-                <circle cx="60" cy="65" r="20" fill="#FFB74D"/>
-                <circle cx="60" cy="65" r="10" fill="#FFCC80"/>
-                <circle cx="140" cy="65" r="20" fill="#FFB74D"/>
-                <circle cx="140" cy="65" r="10" fill="#FFCC80"/>
-                
-                <ellipse cx="100" cy="110" rx="55" ry="50" fill="url(#hamsterGrad)" class="body-shape"/>
-                
-                <!-- Stethoscope -->
-                <path d="M 65 130 C 65 160, 135 160, 135 130" stroke="#455A64" stroke-width="6" fill="none"/>
-                <path d="M 135 130 L 135 110" stroke="#455A64" stroke-width="6" fill="none"/>
-                <circle cx="135" cy="105" r="7" fill="#ECEFF1" stroke="#455A64" stroke-width="4"/>
+  <!--
+    ╔══════════════════════════════════╗
+    ║   PURE CSS BLOB MASCOT LOGIN     ║
+    ║   No SVG · No images · No canvas ║
+    ╚══════════════════════════════════╝
 
-                <!-- Eyes -->
-                <g class="eyes">
-                    <circle cx="80" cy="100" r="12" fill="white" stroke="#FFCC80" stroke-width="2"/>
-                    <circle cx="120" cy="100" r="12" fill="white" stroke="#FFCC80" stroke-width="2"/>
-                    <g class="pupils">
-                        <circle cx="80" cy="100" r="6" fill="#3E2723" class="pupil"/>
-                        <circle cx="120" cy="100" r="6" fill="#3E2723" class="pupil"/>
-                    </g>
-                </g>
-                <!-- Mouth -->
-                <path d="M 95 115 Q 100 120 105 115" stroke="#3E2723" stroke-width="3" fill="none" stroke-linecap="round"/>
-                
-                <!-- Arms -->
-                <g class="arms">
-                    <path d="M 40 130 Q 30 150 50 155" stroke="#FFB74D" stroke-width="14" stroke-linecap="round" fill="none" class="arm arm-left"/>
-                    <path d="M 160 130 Q 170 150 150 155" stroke="#FFB74D" stroke-width="14" stroke-linecap="round" fill="none" class="arm arm-right"/>
-                </g>
-            </svg>
-            
-            <!-- Mascot 3: Soft Blob -->
-            <svg class="mascot mascot-blob" viewBox="0 0 200 200" xmlns="http://www.w3.org/2000/svg">
-                <defs>
-                    <linearGradient id="blobGrad" x1="0%" y1="0%" x2="100%" y2="100%">
-                        <stop offset="0%" stop-color="#FFFFFF"/>
-                        <stop offset="100%" stop-color="#E8EAF6"/>
-                    </linearGradient>
-                </defs>
-                <path d="M 100 50 C 150 50, 170 100, 150 150 C 130 180, 70 180, 50 150 C 30 100, 50 50, 100 50 Z" fill="url(#blobGrad)" class="body-shape"/>
-                
-                <!-- Stethoscope -->
-                <path d="M 65 125 C 65 165, 135 165, 135 125" stroke="#455A64" stroke-width="6" fill="none"/>
-                <path d="M 135 125 L 135 105" stroke="#455A64" stroke-width="6" fill="none"/>
-                <circle cx="135" cy="100" r="6" fill="#ECEFF1" stroke="#455A64" stroke-width="4"/>
+    Structure:
+    .page-wrapper
+    ├── .mascot-section
+    │   └── .mascot          ← blob body (CSS border-radius shape)
+    │       ├── .eyebrow (×2)
+    │       ├── .eye-socket (×2)
+    │       │   ├── .eyelid          ← covers pupil on "hide" action
+    │       │   └── .pupil           ← JS moves this to track mouse
+    │       ├── .blush (×2)
+    │       ├── .mouth
+    │       └── .arm (×2)   ← swing up to cover eyes on showPassword
+    └── .login-section
+        └── .card
+            └── form
+  -->
 
-                <!-- Eyes -->
-                <g class="eyes">
-                    <circle cx="80" cy="95" r="14" fill="white" stroke="#C5CAE9" stroke-width="2"/>
-                    <circle cx="120" cy="95" r="14" fill="white" stroke="#C5CAE9" stroke-width="2"/>
-                    <g class="pupils">
-                        <circle cx="80" cy="95" r="7" fill="#1A237E" class="pupil"/>
-                        <circle cx="120" cy="95" r="7" fill="#1A237E" class="pupil"/>
-                    </g>
-                </g>
-                
-                <!-- Arms -->
-                <g class="arms">
-                    <path d="M 40 125 C 20 130, 20 150, 45 155" stroke="#E8EAF6" stroke-width="16" stroke-linecap="round" fill="none" class="arm arm-left"/>
-                    <path d="M 160 125 C 180 130, 180 150, 155 155" stroke="#E8EAF6" stroke-width="16" stroke-linecap="round" fill="none" class="arm arm-right"/>
-                </g>
-            </svg>
+  <div class="page-wrapper">
+
+    <!-- ── MASCOT ────────────────────────────── -->
+    <section class="mascot-section" aria-hidden="true">
+
+      <!-- Decorative floating bubbles behind mascot -->
+      <div class="bubble b1"></div>
+      <div class="bubble b2"></div>
+      <div class="bubble b3"></div>
+
+      <div class="mascot" id="mascot">
+
+        <!-- Antenna -->
+        <div class="antenna">
+          <div class="antenna-ball"></div>
         </div>
-        
-        <!-- Login Card -->
-        <div class="login-card">
-            <div class="card-header">
-                <h2>Welcome Back</h2>
-                <p>Healthcare AI Assistant</p>
+
+        <!-- Eyebrows -->
+        <div class="eyebrow eyebrow-left" id="ebL"></div>
+        <div class="eyebrow eyebrow-right" id="ebR"></div>
+
+        <!-- Left eye -->
+        <div class="eye-socket eye-left">
+          <div class="eyelid eyelid-top"></div>
+          <div class="pupil" id="pupilL">
+            <div class="pupil-shine"></div>
+          </div>
+        </div>
+
+        <!-- Right eye -->
+        <div class="eye-socket eye-right">
+          <div class="eyelid eyelid-top"></div>
+          <div class="pupil" id="pupilR">
+            <div class="pupil-shine"></div>
+          </div>
+        </div>
+
+        <!-- Blush marks -->
+        <div class="blush blush-left"></div>
+        <div class="blush blush-right"></div>
+
+        <!-- Mouth -->
+        <div class="mouth" id="mouth">
+          <div class="mouth-inner"></div>
+        </div>
+
+        <!-- Stethoscope hanging from neck -->
+        <div class="stethoscope">
+          <div class="steth-tube"></div>
+          <div class="steth-head"></div>
+        </div>
+
+        <!-- Arms (swing up to cover eyes) -->
+        <div class="arm arm-left" id="armL">
+          <div class="hand"></div>
+        </div>
+        <div class="arm arm-right" id="armR">
+          <div class="hand"></div>
+        </div>
+
+      </div><!-- /.mascot -->
+
+      <p class="mascot-label">MediBot — Your AI Assistant</p>
+    </section>
+
+    <!-- ── LOGIN CARD ─────────────────────────── -->
+    <main class="login-section">
+      <div class="card">
+
+        <header class="card-header">
+          <div class="logo-dot"></div>
+          <h1>Welcome Back</h1>
+          <p>Healthcare AI Portal</p>
+        </header>
+
+        <form id="login-form" novalidate>
+
+          <div class="field-group">
+            <label for="email">Email Address</label>
+            <div class="input-wrap">
+              <span class="field-icon">✉</span>
+              <input
+                type="email"
+                id="email"
+                name="email"
+                placeholder="doctor@hospital.com"
+                autocomplete="email"
+                spellcheck="false"
+              />
             </div>
-            <form id="login-form">
-                <div class="input-group">
-                    <label for="username">Email or Username</label>
-                    <input type="text" id="username" placeholder="doctor@hospital.com" autocomplete="off">
-                </div>
-                <div class="input-group">
-                    <label for="password">Password</label>
-                    <div class="password-wrapper">
-                        <input type="password" id="password" placeholder="••••••••" autocomplete="off">
-                        <button type="button" id="toggle-password" class="toggle-btn" title="Show Password">
-                            <!-- Eye icon -->
-                            <svg id="eye-icon" viewBox="0 0 24 24" width="22" height="22" stroke="currentColor" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round">
-                                <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path>
-                                <circle cx="12" cy="12" r="3"></circle>
-                            </svg>
-                        </button>
-                    </div>
-                </div>
-                <button type="button" class="submit-btn">Login to Portal</button>
-            </form>
-        </div>
-    </div>
-    <script src="script.js"></script>
+          </div>
+
+          <div class="field-group">
+            <label for="password">Password</label>
+            <div class="input-wrap">
+              <span class="field-icon">🔑</span>
+              <input
+                type="password"
+                id="password"
+                name="password"
+                placeholder="••••••••"
+                autocomplete="current-password"
+              />
+              <button
+                type="button"
+                id="toggle-pass"
+                class="toggle-pass"
+                aria-label="Show password"
+                title="Toggle password visibility"
+              >
+                <!-- Pure CSS eye icon via text character -->
+                <span id="eye-glyph">👁</span>
+              </button>
+            </div>
+          </div>
+
+          <div class="forgot-row">
+            <a href="#" class="forgot-link">Forgot password?</a>
+          </div>
+
+          <button type="submit" class="submit-btn" id="submit-btn">
+            Sign In to Portal
+          </button>
+
+        </form>
+
+        <footer class="card-footer">
+          <p>Don't have an account? <a href="#">Request Access</a></p>
+        </footer>
+
+      </div>
+    </main>
+
+  </div><!-- /.page-wrapper -->
+
+  <script src="script.js"></script>
 </body>
 </html>
