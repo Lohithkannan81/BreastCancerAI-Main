@@ -44,7 +44,7 @@ async function tryBackend(path: string, body: object): Promise<any | null> {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(body),
-      signal: AbortSignal.timeout(5000), // 5s timeout
+      signal: AbortSignal.timeout(3000), // 3s timeout
     });
     if (!res.ok) {
       const err = await res.json().catch(() => ({ detail: 'Request failed' }));
@@ -52,9 +52,13 @@ async function tryBackend(path: string, body: object): Promise<any | null> {
     }
     return await res.json();
   } catch (e: any) {
-    // Network / connection error — return null to trigger localStorage fallback
-    if (e.name === 'TypeError' || e.name === 'AbortError') return null;
-    throw e; // Re-throw actual HTTP errors (401, 400, etc.)
+    // Any network/timeout/abort error → fall back to localStorage silently
+    if (
+      e.name === 'TypeError'   ||  // fetch network error
+      e.name === 'AbortError'  ||  // AbortController
+      e.name === 'TimeoutError'    // AbortSignal.timeout()
+    ) return null;
+    throw e; // Re-throw real HTTP errors (401, 400, etc.)
   }
 }
 
