@@ -15,6 +15,50 @@
   align-items: center;
 }
 
+/* ── Shared pupil base — ALL mascots use this class so the JS
+   tracking loop can query them. Each mascot variant's own pupil
+   style overrides size/colour via a more specific selector.    */
+.mascot-pupil {
+  position: absolute;
+  width: 14px;
+  height: 14px;
+  background: radial-gradient(circle at 38% 33%, #555, #1a1a2e 70%);
+  border-radius: 50%;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  transition: transform 0.07s ease-out;
+  z-index: 2;
+}
+.mascot-pupil-shine {
+  width: 5px;
+  height: 5px;
+  background: rgba(255, 255, 255, 0.92);
+  border-radius: 50%;
+  position: absolute;
+  top: 2px;
+  left: 3px;
+}
+
+/* Robot-specific pupil overrides (square + blue glow) */
+.robot-eye .mascot-pupil {
+  width: 14px;
+  height: 14px;
+  background: radial-gradient(circle, #93c5fd 30%, #1d4ed8 100%);
+  border-radius: 3px;
+  box-shadow: 0 0 8px rgba(147, 197, 253, 0.9);
+}
+
+/* Ghost-specific pupil overrides (taller oval + indigo) */
+.ghost-eye .mascot-pupil {
+  width: 16px;
+  height: 18px;
+  background: radial-gradient(circle at 38% 33%, #818cf8, #1e1b4b 70%);
+  border-radius: 50%;
+  box-shadow: none;
+}
+
+
 /* ================================================================
    🤖 ROBOT MASCOT
    Square body, rectangular eye sockets, radar antenna
