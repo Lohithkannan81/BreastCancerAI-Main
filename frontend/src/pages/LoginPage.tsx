@@ -1,8 +1,8 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState } from 'react';
 import { GoogleLogin } from '@react-oauth/google';
 import { motion } from 'framer-motion';
 import { Icons } from '../constants';
-import Mascot from '../components/Mascot';
+import Mascot3D from '../components/Mascot3D';
 
 interface LoginPageProps {
   onLogin: (email: string, password: string) => Promise<{ success: boolean; error?: string }>;
@@ -20,30 +20,7 @@ const LoginPage: React.FC<LoginPageProps> = ({ onLogin, onGoogleLogin, onSignup 
   const [forgotSuccess, setForgotSuccess] = useState('');
 
   // Interactive UI State
-  const [isEmailFocused, setIsEmailFocused] = useState(false);
-  const [isPasswordFocused, setIsPasswordFocused] = useState(false);
   const [isPasswordVisible, setIsPasswordVisible] = useState(false);
-  const [mousePos, setMousePos] = useState({ x: 0, y: 0 });
-  const containerRef = useRef<HTMLDivElement>(null);
-
-  useEffect(() => {
-    const handleMouseMove = (e: MouseEvent) => {
-      if (!containerRef.current) return;
-      const rect = containerRef.current.getBoundingClientRect();
-      // Normalize mouse coordinates relative to the center of the container
-      const x = (e.clientX - rect.left - rect.width / 2) / (rect.width / 2);
-      const y = (e.clientY - rect.top - rect.height / 2) / (rect.height / 2);
-
-      // Keep x, y between -1 and 1
-      setMousePos({
-        x: Math.max(-1, Math.min(1, x)),
-        y: Math.max(-1, Math.min(1, y))
-      });
-    };
-
-    window.addEventListener('mousemove', handleMouseMove);
-    return () => window.removeEventListener('mousemove', handleMouseMove);
-  }, []);
 
   // Generate random particles for background
   const particles = Array.from({ length: 15 }).map((_, i) => ({
@@ -96,7 +73,6 @@ const LoginPage: React.FC<LoginPageProps> = ({ onLogin, onGoogleLogin, onSignup 
 
   return (
     <div
-      ref={containerRef}
       className="min-h-screen cinematic-gradient flex items-center justify-center p-4 selection:bg-blue-500/30 relative overflow-hidden"
     >
       {/* Animated Particles Background */}
@@ -135,14 +111,11 @@ const LoginPage: React.FC<LoginPageProps> = ({ onLogin, onGoogleLogin, onSignup 
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.6 }}
-            className="absolute -top-24 left-1/2 -translate-x-1/2 z-20"
+            className="absolute -top-32 left-1/2 -translate-x-1/2 z-20"
           >
-            <Mascot
-              isEmailFocused={isEmailFocused}
-              isPasswordFocused={isPasswordFocused}
-              isPasswordVisible={isPasswordVisible}
-              mouseX={mousePos.x}
-              mouseY={mousePos.y}
+            <Mascot3D
+              isHiding={isPasswordVisible}
+              isFloating={true}
             />
           </motion.div>
         )}
@@ -193,8 +166,6 @@ const LoginPage: React.FC<LoginPageProps> = ({ onLogin, onGoogleLogin, onSignup 
                         type="email"
                         value={email}
                         onChange={(e) => setEmail(e.target.value)}
-                        onFocus={() => setIsEmailFocused(true)}
-                        onBlur={() => setIsEmailFocused(false)}
                         placeholder="doctor@medical.com"
                         className="input-premium pl-11 bg-white/60"
                       />
@@ -211,8 +182,6 @@ const LoginPage: React.FC<LoginPageProps> = ({ onLogin, onGoogleLogin, onSignup 
                         type={isPasswordVisible ? "text" : "password"}
                         value={password}
                         onChange={(e) => setPassword(e.target.value)}
-                        onFocus={() => setIsPasswordFocused(true)}
-                        onBlur={() => setIsPasswordFocused(false)}
                         placeholder="••••••••"
                         className="input-premium pl-11 pr-11 bg-white/60 font-mono tracking-wider"
                       />
