@@ -1,5 +1,6 @@
 import React from 'react';
 import { Icons } from '../constants';
+import heroImage from '../assets/hero_image.png';
 
 interface LandingPageProps {
   onStart: () => void;
@@ -46,8 +47,18 @@ const LandingPage: React.FC<LandingPageProps> = ({ onStart, onLogin }) => {
           </div>
           <div className="mt-12 flex items-center gap-6">
             <div className="flex -space-x-3">
-              {[1, 2, 3, 4].map((i) => (
-                <img key={i} src={`https://picsum.photos/100/100?random=${i}`} className="w-10 h-10 rounded-full border-2 border-white object-cover" alt="User" />
+              {[
+                'from-blue-400 to-indigo-500',
+                'from-pink-400 to-rose-500',
+                'from-teal-400 to-cyan-500',
+                'from-violet-400 to-purple-500',
+              ].map((gradient, i) => (
+                <div
+                  key={i}
+                  className={`w-10 h-10 rounded-full border-2 border-white bg-gradient-to-br ${gradient} flex items-center justify-center text-white text-xs font-bold shadow-sm`}
+                >
+                  {String.fromCharCode(65 + i)}
+                </div>
               ))}
             </div>
             <p className="text-sm text-slate-500 font-medium">Trusted by 200+ Clinical Researchers</p>
@@ -60,9 +71,9 @@ const LandingPage: React.FC<LandingPageProps> = ({ onStart, onLogin }) => {
           <div className="relative glass-panel p-2 transform transition-transform duration-700 hover:scale-[1.02] hover:-translate-y-2 group">
             <div className="absolute inset-0 bg-gradient-to-tr from-white/40 to-white/10 rounded-3xl opacity-0 group-hover:opacity-100 transition-opacity duration-500 pointer-events-none"></div>
             <img
-              src="https://images.unsplash.com/photo-1576091160550-2173ff9e5fe3?q=80&w=2670&auto=format&fit=crop&ixlib=rb-4.0.3"
+              src={heroImage}
               className="rounded-[1.25rem] shadow-sm relative z-10 object-cover h-[500px] w-full"
-              alt="Medical AI Research"
+              alt="Healthcare AI Medical Platform"
             />
           </div>
         </div>
