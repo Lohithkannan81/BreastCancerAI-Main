@@ -200,7 +200,6 @@ function DashboardLayout({ user, onLogout }: DashboardLayoutProps) {
       {/* Mobile Header - only on small screens */}
       <header className="md:hidden bg-slate-900 text-white p-4 flex items-center justify-between sticky top-0 z-30 border-b border-slate-800">
         <div className="flex items-center gap-2">
-          <div className="w-8 h-8 bg-blue-600 rounded-lg flex items-center justify-center text-white font-bold text-sm shadow-lg shadow-blue-900/50">O</div>
           <h1 className="font-bold text-sm tracking-wide">BreastCancerAI</h1>
         </div>
         <button onClick={toggleSidebar} className="p-2 hover:bg-slate-800 rounded-lg transition-colors">
@@ -224,7 +223,6 @@ function DashboardLayout({ user, onLogout }: DashboardLayoutProps) {
       )}>
         <div className="p-6 border-b border-slate-800">
           <div className="flex items-center gap-3">
-            <div className="w-10 h-10 bg-blue-600 rounded-xl flex items-center justify-center text-white font-bold text-xl shadow-lg shadow-blue-900/50">O</div>
             <div>
               <h1 className="font-bold text-lg tracking-wide">BreastCancerAI</h1>
               <p className="text-xs text-slate-400 font-medium">Clinical AI Assistant</p>
