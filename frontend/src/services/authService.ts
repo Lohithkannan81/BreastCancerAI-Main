@@ -1,12 +1,16 @@
+/**
+ * authService.ts — Authentication via Supabase (users table)
+ *
+ * Strategy: Supabase first → localStorage fallback when Supabase is unavailable.
+ * This ensures the app always works, even without env vars configured.
+ */
+
 import { jwtDecode } from 'jwt-decode';
+import { supabase } from '../lib/supabase';
 
-const API_URL = import.meta.env.VITE_API_URL || '';
+const isSupabaseConfigured = !!import.meta.env.VITE_SUPABASE_URL;
 
-/* ────────────────────────────────────────────────────────────
-   LOCAL STORAGE USER STORE
-   Used both as a cache and as a complete offline fallback when
-   the backend is unavailable (e.g., Vercel free tier SQLite limits).
-──────────────────────────────────────────────────────────── */
+/* ─── local storage fallback ────────────────────────────── */
 const LS_KEY = 'medibot_users';
 
 interface LSUser {
@@ -14,154 +18,146 @@ interface LSUser {
   passwordHash: string;
   fullname: string;
   role: string;
+  resetToken?: string;
+  resetTokenExpiry?: number;
 }
 
 function hashPassword(pw: string): string {
-  // Simple deterministic hash (same logic as backend SHA-256 hex)
-  // We use a fast JS approach since we can't import Node crypto in browser
-  let hash = 0;
-  for (let i = 0; i < pw.length; i++) {
-    hash = ((hash << 5) - hash) + pw.charCodeAt(i);
-    hash |= 0;
-  }
-  return Math.abs(hash).toString(16).padStart(8, '0');
+  let h = 0;
+  for (let i = 0; i < pw.length; i++) { h = ((h << 5) - h) + pw.charCodeAt(i); h |= 0; }
+  return Math.abs(h).toString(16).padStart(8, '0');
 }
 
-function getLocalUsers(): LSUser[] {
+function lsUsers(): LSUser[] {
   try { return JSON.parse(localStorage.getItem(LS_KEY) || '[]'); } catch { return []; }
 }
-function saveLocalUsers(users: LSUser[]) {
-  localStorage.setItem(LS_KEY, JSON.stringify(users));
-}
+function saveUsers(u: LSUser[]) { localStorage.setItem(LS_KEY, JSON.stringify(u)); }
 
-/* ────────────────────────────────────────────────────────────
-   TRY BACKEND — falls back to localStorage on any network error
-──────────────────────────────────────────────────────────── */
-async function tryBackend(path: string, body: object): Promise<any | null> {
-  if (!API_URL) return null;
-  try {
-    const res = await fetch(`${API_URL}${path}`, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(body),
-      signal: AbortSignal.timeout(3000), // 3s timeout
-    });
-    if (!res.ok) {
-      const err = await res.json().catch(() => ({ detail: 'Request failed' }));
-      throw new Error(err.detail || 'Request failed');
-    }
-    return await res.json();
-  } catch (e: any) {
-    // Any network/timeout/abort error → fall back to localStorage silently
-    if (
-      e.name === 'TypeError'   ||  // fetch network error
-      e.name === 'AbortError'  ||  // AbortController
-      e.name === 'TimeoutError'    // AbortSignal.timeout()
-    ) return null;
-    throw e; // Re-throw real HTTP errors (401, 400, etc.)
-  }
-}
-
-/* ────────────────────────────────────────────────────────────
-   LOGIN
-──────────────────────────────────────────────────────────── */
+/* ─── LOGIN ─────────────────────────────────────────────── */
 export const loginUser = async (email: string, password: string): Promise<any> => {
-  // 1. Try backend
-  const data = await tryBackend('/login', { username: email, password });
-  if (data) {
-    return { email: data.username, name: data.fullname, role: data.role, organization: 'Clinical Portal' };
+  if (isSupabaseConfigured) {
+    try {
+      const { data, error } = await supabase
+        .from('users')
+        .select('username,fullname,role')
+        .eq('username', email)
+        .eq('password', hashPassword(password))
+        .single();
+
+      if (error || !data) throw new Error('Invalid credentials');
+      return { email: data.username, name: data.fullname, role: data.role, organization: 'Clinical Portal' };
+    } catch (e: any) {
+      // PGRST116 = no rows found → wrong credentials
+      if (e.message?.includes('Invalid credentials') || e.code === 'PGRST116') {
+        throw new Error('Invalid credentials');
+      }
+      // Connection error → fall through to localStorage
+      console.warn('Supabase login failed, using localStorage:', e.message);
+    }
   }
 
-  // 2. Fallback: localStorage
-  const users = getLocalUsers();
-  const user = users.find(u => u.username === email && u.passwordHash === hashPassword(password));
+  // localStorage fallback
+  const user = lsUsers().find(u => u.username === email && u.passwordHash === hashPassword(password));
   if (!user) throw new Error('Invalid credentials');
   return { email: user.username, name: user.fullname, role: user.role, organization: 'Clinical Portal' };
 };
 
-/* ────────────────────────────────────────────────────────────
-   GOOGLE LOGIN
-──────────────────────────────────────────────────────────── */
+/* ─── GOOGLE LOGIN ──────────────────────────────────────── */
 export const googleLoginUser = async (credential: string): Promise<any> => {
   const decoded: any = jwtDecode(credential);
-  const { email, name } = decoded;
-  const displayName = name || email.split('@')[0];
+  const email = decoded.email as string;
+  const displayName = (decoded.name || email.split('@')[0]) as string;
 
-  // 1. Try backend
-  const data = await tryBackend('/google-login', { email, name: displayName });
-  if (data) {
-    return { email: data.username, name: data.fullname, role: data.role, organization: 'Clinical Portal' };
+  if (isSupabaseConfigured) {
+    try {
+      // Check if user exists
+      const { data: existing } = await supabase
+        .from('users')
+        .select('username,fullname,role')
+        .eq('username', email)
+        .maybeSingle();
+
+      if (existing) {
+        return { email: existing.username, name: existing.fullname, role: existing.role, organization: 'Clinical Portal' };
+      }
+
+      // Create new user
+      const newUser = { username: email, password: hashPassword(email + Date.now()), fullname: displayName, role: 'Doctor' };
+      const { error } = await supabase.from('users').insert(newUser);
+      if (error && error.code !== '23505') throw error; // ignore duplicate key
+      return { email, name: displayName, role: 'Doctor', organization: 'Clinical Portal' };
+    } catch (e: any) {
+      console.warn('Supabase google-login failed, using localStorage:', e.message);
+    }
   }
 
-  // 2. Fallback: localStorage — find or auto-create
-  const users = getLocalUsers();
+  // localStorage fallback
+  const users = lsUsers();
   const existing = users.find(u => u.username === email);
-  if (existing) {
-    return { email: existing.username, name: existing.fullname, role: existing.role, organization: 'Clinical Portal' };
-  }
-  // Auto-register Google user locally
+  if (existing) return { email, name: existing.fullname, role: existing.role, organization: 'Clinical Portal' };
   const newUser: LSUser = { username: email, passwordHash: '', fullname: displayName, role: 'Doctor' };
-  saveLocalUsers([...users, newUser]);
-  return { email: newUser.username, name: newUser.fullname, role: newUser.role, organization: 'Clinical Portal' };
+  saveUsers([...users, newUser]);
+  return { email, name: displayName, role: 'Doctor', organization: 'Clinical Portal' };
 };
 
-/* ────────────────────────────────────────────────────────────
-   REGISTER
-──────────────────────────────────────────────────────────── */
+/* ─── REGISTER ──────────────────────────────────────────── */
 export const registerUser = async (
-  email: string,
-  password: string,
-  name: string,
-  role: string,
-  _organization: string,
-  _department: string
+  email: string, password: string, name: string, role: string,
+  _org: string, _dept: string
 ): Promise<boolean> => {
-  // 1. Try backend
-  const data = await tryBackend('/signup', { username: email, password, fullname: name, role });
-  if (data) return true;
+  if (isSupabaseConfigured) {
+    try {
+      const { error } = await supabase.from('users').insert({
+        username: email,
+        password: hashPassword(password),
+        fullname: name,
+        role,
+      });
+      if (error) {
+        if (error.code === '23505') throw new Error('Username already exists');
+        throw new Error(error.message);
+      }
+      return true;
+    } catch (e: any) {
+      if (e.message === 'Username already exists') throw e;
+      console.warn('Supabase register failed, using localStorage:', e.message);
+    }
+  }
 
-  // 2. Fallback: localStorage
-  const users = getLocalUsers();
+  // localStorage fallback
+  const users = lsUsers();
   if (users.find(u => u.username === email)) throw new Error('Username already exists');
-  const newUser: LSUser = { username: email, passwordHash: hashPassword(password), fullname: name, role };
-  saveLocalUsers([...users, newUser]);
+  saveUsers([...users, { username: email, passwordHash: hashPassword(password), fullname: name, role }]);
   return true;
 };
 
-/* ────────────────────────────────────────────────────────────
-   PASSWORD RESET (local only)
-──────────────────────────────────────────────────────────── */
-function generateToken(): string {
-  return Math.random().toString(36).slice(2) + Math.random().toString(36).slice(2);
-}
-
+/* ─── PASSWORD RESET (local only) ──────────────────────── */
 export const sendPasswordResetEmail = async (email: string): Promise<boolean> => {
-  const users = getLocalUsers();
+  const users = lsUsers();
   const idx = users.findIndex(u => u.username === email);
   if (idx === -1) throw new Error('No account found with that email');
-  const token = generateToken();
-  (users[idx] as any).resetToken = token;
-  (users[idx] as any).resetTokenExpiry = Date.now() + 3_600_000;
-  saveLocalUsers(users);
+  const token = Math.random().toString(36).slice(2) + Math.random().toString(36).slice(2);
+  users[idx].resetToken = token;
+  users[idx].resetTokenExpiry = Date.now() + 3_600_000;
+  saveUsers(users);
   console.log('🔑 Reset link:', `${window.location.origin}/reset-password?token=${token}&email=${email}`);
   return true;
 };
 
 export const verifyResetToken = (email: string, token: string): boolean => {
-  const users = getLocalUsers();
-  const user = users.find(u => u.username === email) as any;
-  return !!(user?.resetToken === token && Date.now() < user?.resetTokenExpiry);
+  const user = lsUsers().find(u => u.username === email);
+  return !!(user?.resetToken === token && Date.now() < (user?.resetTokenExpiry ?? 0));
 };
 
 export const resetPassword = (email: string, token: string, newPassword: string): boolean => {
   if (!verifyResetToken(email, token)) return false;
-  const users = getLocalUsers();
+  const users = lsUsers();
   const idx = users.findIndex(u => u.username === email);
   users[idx].passwordHash = hashPassword(newPassword);
-  delete (users[idx] as any).resetToken;
-  delete (users[idx] as any).resetTokenExpiry;
-  saveLocalUsers(users);
+  delete users[idx].resetToken;
+  delete users[idx].resetTokenExpiry;
+  saveUsers(users);
   return true;
 };
 
-export const changePassword = (_email: string, _oldPassword: string, _newPassword: string): boolean => true;
+export const changePassword = (_e: string, _o: string, _n: string): boolean => true;
