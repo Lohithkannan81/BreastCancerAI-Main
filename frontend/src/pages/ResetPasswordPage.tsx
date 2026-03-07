@@ -16,7 +16,7 @@ const ResetPasswordPage: React.FC = () => {
     const [error, setError] = useState('');
     const [success, setSuccess] = useState(false);
 
-    const handleSubmit = (e: React.FormEvent) => {
+    const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
         setError('');
 
@@ -36,21 +36,23 @@ const ResetPasswordPage: React.FC = () => {
         }
 
         setIsLoading(true);
-
-        setTimeout(() => {
-            const result = resetPassword(email, token, newPassword);
+        try {
+            const result = await resetPassword(email, token, newPassword);
 
             if (result) {
                 setSuccess(true);
                 setTimeout(() => {
                     navigate('/login');
-                }, 2000);
+                }, 3000); // 3 seconds to let the user breathe
             } else {
                 setError('Invalid or expired reset link. Please request a new one.');
             }
-
+        } catch (err: any) {
+            console.error('Reset error:', err);
+            setError('System error resetting password. Please try again.');
+        } finally {
             setIsLoading(false);
-        }, 1000);
+        }
     };
 
     if (success) {
