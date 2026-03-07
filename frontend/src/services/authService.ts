@@ -132,38 +132,43 @@ export const registerUser = async (
 
 /* ─── PASSWORD RESET (emailjs) ────────────────────────── */
 export const sendPasswordResetEmail = async (email: string): Promise<boolean> => {
+  console.log('🔍 Initiating reset for:', email);
   let users = lsUsers();
-  let idx = users.findIndex(u => u.username === email);
+  let idx = users.findIndex(u => u.username.toLowerCase() === email.toLowerCase());
 
-  // If not in localStorage, check Supabase
+  // Check Supabase if not found locally
   if (idx === -1 && isSupabaseConfigured) {
     try {
-      const { data } = await supabase
+      const { data, error } = await supabase
         .from('users')
         .select('username,fullname,role')
         .eq('username', email)
         .maybeSingle();
 
+      if (error) console.error('Supabase Query Error:', error);
+
       if (data) {
-        // "Cache" the Supabase user locally so the token flow works on this device
         users.push({ username: data.username, fullname: data.fullname, role: data.role, passwordHash: '' });
         saveUsers(users);
         idx = users.length - 1;
       }
     } catch (e) {
-      console.warn('Supabase check failed:', e);
+      console.error('Database connection failed:', e);
     }
   }
 
-  if (idx === -1) throw new Error('No account found with that email');
+  if (idx === -1) {
+    throw new Error('This account does not exist in our medical directory. Please verify your email or register.');
+  }
 
   const token = Math.random().toString(36).slice(2) + Math.random().toString(36).slice(2);
   users[idx].resetToken = token;
-  users[idx].resetTokenExpiry = Date.now() + 3_600_000;
+  users[idx].resetTokenExpiry = Date.now() + 3_600_000; // 1 hour
   saveUsers(users);
 
-  const resetLink = `${window.location.origin}/reset-password?token=${token}&email=${email}`;
-  console.log('🔑 Reset link (Backup):', resetLink);
+  // Link construction
+  const resetLink = `${window.location.origin}/reset-password?token=${token}&email=${encodeURIComponent(email)}`;
+  console.log('🔑 Recovery Link:', resetLink);
 
   // EmailJS Integration
   const serviceId = import.meta.env.VITE_EMAIL_SERVICE_ID || import.meta.env.VITE_EMAILJS_SERVICE_ID;
@@ -177,9 +182,9 @@ export const sendPasswordResetEmail = async (email: string): Promise<boolean> =>
         templateId,
         {
           to_name: users[idx].fullname,
-          email: email,      // Matches user's EmailJS {{email}}
-          link: resetLink,   // Matches user's EmailJS {{link}}
-          app_name: 'BreastCancerAI'
+          to_email: email,      // Explicitly matches {{to_email}}
+          reset_link: resetLink, // Explicitly matches {{reset_link}}
+          app_name: 'MediScan AI Clinical Portal'
         },
         publicKey
       );
