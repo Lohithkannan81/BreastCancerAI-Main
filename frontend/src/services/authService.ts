@@ -1,5 +1,5 @@
 /**
- * authService.ts — Authentication via Supabase (users table)
+ * authService.ts — Finalized Authentication via Supabase and EmailJS.
  *
  * Strategy: Supabase first → localStorage fallback when Supabase is unavailable.
  * This ensures the app always works, even without env vars configured.
