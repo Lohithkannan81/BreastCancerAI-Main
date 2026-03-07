@@ -336,7 +336,11 @@ const LoginPage: React.FC<LoginPageProps> = ({ onLogin, onGoogleLogin, onSignup 
                   <GoogleLogin
                     onSuccess={r => { if (r.credential) onGoogleLogin(r.credential).then(res => { if (!res.success) setError(res.error || 'Google Login failed'); }); }}
                     onError={() => setError('Google Login failed')}
-                    useOneTap theme="outline" size="large" text="continue_with" width="100%"
+                    theme="outline"
+                    size="large"
+                    text="continue_with"
+                    shape="pill"
+                    width="320"
                   />
                 </div>
               </form>
