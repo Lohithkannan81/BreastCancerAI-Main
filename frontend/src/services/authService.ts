@@ -125,53 +125,55 @@ export const sendPasswordResetEmail = async (email: string): Promise<boolean> =>
 
   const token = Math.random().toString(36).slice(2) + Math.random().toString(36).slice(2);
   const expiry = Date.now() + 3_600_000; // 1 hour
-  let fullname = 'Doctor';
+  let fullname = '';
 
-  // 1. Try to save token in Supabase (Cloud)
+  // 1. Try to save token in Supabase (Cloud) - Case Insensitive Search
   if (isSupabaseConfigured) {
     try {
       const { data, error } = await supabase
         .from('users')
         .update({ reset_token: token, reset_token_expiry: expiry })
-        .eq('username', email)
+        .ilike('username', email) // CASE INSENSITIVE
         .select('fullname')
         .maybeSingle();
 
       if (error) throw error;
       if (data) {
-        fullname = data.fullname;
-        console.log('✅ Token saved to Supabase (Cloud)');
+        fullname = data.fullname || 'Doctor';
+        console.log('✅ Token saved to Supabase (Cloud) with case-insensitive match');
+      } else {
+        console.warn('⚠️ Supabase: No user found matching (case-insensitive):', email);
       }
     } catch (e: any) {
       console.warn('Supabase token save failed, using fallback:', e.message);
     }
   }
 
-  // 2. Fallback: Save to localStorage (Local)
+  // 2. Fallback/Sync: Save to localStorage (Local)
   let users = lsUsers();
   let idx = users.findIndex(u => u.username.toLowerCase() === email.toLowerCase());
   if (idx !== -1) {
     users[idx].resetToken = token;
     users[idx].resetTokenExpiry = expiry;
     saveUsers(users);
-    fullname = users[idx].fullname;
+    fullname = fullname || users[idx].fullname;
     console.log('✅ Token saved to LocalStorage');
   }
 
-  // If nowhere found, throw error
+  // Only error out if we found them nowhere
   if (!fullname && idx === -1) throw new Error('No account found with that email');
 
   const resetLink = `${window.location.origin}/reset-password?token=${token}&email=${encodeURIComponent(email)}`;
-  console.log('🔑 Recovery Link:', resetLink);
+  console.log('🔑 Recovery Link Generated:', resetLink);
 
-  const serviceId = import.meta.env.VITE_EMAIL_SERVICE_ID || import.meta.env.VITE_EMAILJS_SERVICE_ID;
-  const templateId = import.meta.env.VITE_EMAIL_TEMPLATE_ID || import.meta.env.VITE_EMAILJS_TEMPLATE_ID;
-  const publicKey = import.meta.env.VITE_EMAIL_PUBLIC_KEY || import.meta.env.VITE_EMAILJS_PUBLIC_KEY;
+  const serviceId = import.meta.env.VITE_EMAILJS_SERVICE_ID;
+  const templateId = import.meta.env.VITE_EMAILJS_TEMPLATE_ID;
+  const publicKey = import.meta.env.VITE_EMAILJS_PUBLIC_KEY;
 
   if (serviceId && templateId && publicKey) {
     try {
       await emailjs.send(serviceId, templateId, {
-        to_name: fullname,
+        to_name: fullname || 'Doctor',
         to_email: email, email: email, recipient: email,
         reset_link: resetLink, link: resetLink,
         app_name: 'BreastCancerAI'
@@ -179,7 +181,7 @@ export const sendPasswordResetEmail = async (email: string): Promise<boolean> =>
       return true;
     } catch (e: any) {
       console.error('EmailJS Error:', e);
-      throw new Error('Failed to send reset email.');
+      throw new Error(`Email failed: ${e.text || 'Service Unavailable'}`);
     }
   }
 
@@ -188,6 +190,7 @@ export const sendPasswordResetEmail = async (email: string): Promise<boolean> =>
 
 export const verifyResetToken = async (email: string, token: string): Promise<boolean> => {
   console.log('🧪 Verifying token for:', email);
+  console.log('🔗 Token from URL:', token);
 
   // 1. Check Supabase (Cloud)
   if (isSupabaseConfigured) {
@@ -195,16 +198,25 @@ export const verifyResetToken = async (email: string, token: string): Promise<bo
       const { data } = await supabase
         .from('users')
         .select('reset_token, reset_token_expiry')
-        .eq('username', email)
+        .ilike('username', email) // CASE INSENSITIVE
         .maybeSingle();
 
       if (data) {
         const now = Date.now();
-        const expiry = Number(data.reset_token_expiry); // Ensure it's a number
-        const isValid = data.reset_token === token && now < expiry;
+        const expiry = Number(data.reset_token_expiry);
+        const matches = data.reset_token === token;
+        const notExpired = now < expiry;
 
-        console.log('☁️ Supabase Check:', { matches: data.reset_token === token, notExpired: now < expiry, now, expiry });
-        if (isValid) return true;
+        console.log('☁️ Supabase Results:', {
+          token_in_db: data.reset_token,
+          matches,
+          notExpired,
+          timeLeft: Math.round((expiry - now) / 60000) + ' min'
+        });
+
+        if (matches && notExpired) return true;
+      } else {
+        console.log('☁️ Supabase: User not found using case-insensitive search');
       }
     } catch (e) {
       console.warn('Supabase token verification failed:', e);
@@ -230,9 +242,11 @@ export const resetPassword = async (email: string, token: string, newPassword: s
   // 1. Update Supabase (Cloud)
   if (isSupabaseConfigured) {
     try {
-      await supabase.from('users')
+      const { error } = await supabase.from('users')
         .update({ password: hPass, reset_token: null, reset_token_expiry: null })
-        .eq('username', email);
+        .ilike('username', email); // CASE INSENSITIVE
+
+      if (!error) console.log('✅ Supabase: Password updated successfully');
     } catch (e) {
       console.error('Supabase update failed:', e);
     }
