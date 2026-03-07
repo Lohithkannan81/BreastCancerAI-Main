@@ -156,9 +156,9 @@ export const sendPasswordResetEmail = async (email: string): Promise<boolean> =>
         templateId,
         {
           to_name: users[idx].fullname,
-          to_email: email,
-          reset_link: resetLink,
-          app_name: 'BreastCancerAI Clinical portal'
+          email: email,      // Matches user's EmailJS {{email}}
+          link: resetLink,   // Matches user's EmailJS {{link}}
+          app_name: 'BreastCancerAI'
         },
         publicKey
       );
