@@ -187,6 +187,8 @@ export const sendPasswordResetEmail = async (email: string): Promise<boolean> =>
 };
 
 export const verifyResetToken = async (email: string, token: string): Promise<boolean> => {
+  console.log('🧪 Verifying token for:', email);
+
   // 1. Check Supabase (Cloud)
   if (isSupabaseConfigured) {
     try {
@@ -196,8 +198,13 @@ export const verifyResetToken = async (email: string, token: string): Promise<bo
         .eq('username', email)
         .maybeSingle();
 
-      if (data && data.reset_token === token && Date.now() < (data.reset_token_expiry || 0)) {
-        return true;
+      if (data) {
+        const now = Date.now();
+        const expiry = Number(data.reset_token_expiry); // Ensure it's a number
+        const isValid = data.reset_token === token && now < expiry;
+
+        console.log('☁️ Supabase Check:', { matches: data.reset_token === token, notExpired: now < expiry, now, expiry });
+        if (isValid) return true;
       }
     } catch (e) {
       console.warn('Supabase token verification failed:', e);
@@ -206,7 +213,12 @@ export const verifyResetToken = async (email: string, token: string): Promise<bo
 
   // 2. Check LocalStorage (Local)
   const user = lsUsers().find(u => u.username.toLowerCase() === email.toLowerCase());
-  return !!(user?.resetToken === token && Date.now() < (user?.resetTokenExpiry ?? 0));
+  const now = Date.now();
+  const expiry = Number(user?.resetTokenExpiry || 0);
+  const isValid = !!(user?.resetToken === token && now < expiry);
+
+  console.log('🏠 Local Check:', { found: !!user, matches: user?.resetToken === token, notExpired: now < expiry });
+  return isValid;
 };
 
 export const resetPassword = async (email: string, token: string, newPassword: string): Promise<boolean> => {
