@@ -1,0 +1,546 @@
+/* ============================================================
+   HEALTHCARE AI LOGIN — Pure CSS Mascot
+   ============================================================
+   All mascot shapes are built from divs + border-radius.
+   No SVG · No images · No canvas · No icon libraries.
+   ============================================================ */
+
+/* ── Reset & Base ──────────────────────────────────────────── */
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+:root {
+  /* Palette */
+  --bg-from: #c9f0ff;
+  --bg-to: #ffd6f0;
+  --mascot-body: #ffe8a3;
+  --mascot-shadow: #f5c842;
+  --mascot-cheek: #ffb3c6;
+  --mascot-eye-bg: #ffffff;
+  --mascot-pupil: #1a1a2e;
+  --card-bg: rgba(255,255,255,0.45);
+  --card-border: rgba(255,255,255,0.65);
+  --accent: #ff7eb3;
+  --accent2: #7eb3ff;
+  --text-dark: #1a1a2e;
+  --text-mid: #4a4a6a;
+  --text-light: #8888aa;
+  --input-bg: rgba(255,255,255,0.75);
+  --radius-card: 28px;
+  --radius-input: 14px;
+  --transition: 0.35s cubic-bezier(0.25, 1, 0.5, 1);
+}
+
+html, body {
+  height: 100%;
+  font-family: 'Outfit', system-ui, sans-serif;
+  background: linear-gradient(135deg, var(--bg-from) 0%, var(--bg-to) 100%);
+  background-attachment: fixed;
+  color: var(--text-dark);
+}
+
+/* ── Page Layout ───────────────────────────────────────────── */
+.page-wrapper {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 60px;
+  min-height: 100vh;
+  padding: 40px 20px;
+}
+
+/* ── Floating Decorative Bubbles ───────────────────────────── */
+.bubble {
+  position: fixed;
+  border-radius: 50%;
+  opacity: 0.25;
+  animation: drift 8s ease-in-out infinite alternate;
+  pointer-events: none;
+  z-index: 0;
+}
+.b1 { width: 200px; height: 200px; background: var(--accent); top: 10%; left: 5%; animation-delay: 0s; }
+.b2 { width: 140px; height: 140px; background: var(--accent2); bottom: 15%; right: 8%; animation-delay: 2s; }
+.b3 { width: 90px; height: 90px; background: #ffd700; top: 60%; left: 20%; animation-delay: 4s; }
+
+@keyframes drift {
+  from { transform: translate(0, 0) scale(1); }
+  to   { transform: translate(20px, -20px) scale(1.05); }
+}
+
+/* ── Mascot Section ────────────────────────────────────────── */
+.mascot-section {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 16px;
+  position: relative;
+  z-index: 1;
+}
+
+.mascot-label {
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--text-mid);
+  letter-spacing: 0.04em;
+  opacity: 0.8;
+}
+
+/* ── Mascot Body ───────────────────────────────────────────── */
+/*
+  The body is a single div whose blob shape is achieved
+  via a large asymmetric border-radius on all 8 values.
+  Animation: gentle breathing scale + slight rotation.
+*/
+.mascot {
+  position: relative;
+  width: 200px;
+  height: 210px;
+  background: radial-gradient(circle at 35% 30%, #fff5cc, var(--mascot-body) 60%, var(--mascot-shadow));
+  border-radius: 58% 42% 55% 45% / 60% 50% 50% 40%;
+  box-shadow:
+    0 20px 50px rgba(245, 200, 66, 0.35),
+    inset 0 -8px 20px rgba(245, 200, 66, 0.2);
+  animation: breathe 3.5s ease-in-out infinite;
+  transition: border-radius 0.6s ease;
+}
+
+@keyframes breathe {
+  0%,100% { transform: scaleY(1) scaleX(1) rotate(-1deg); }
+  50%      { transform: scaleY(1.04) scaleX(0.97) rotate(1deg); }
+}
+
+/* Mascot surprised / curious state (password focus) */
+.mascot.curious {
+  border-radius: 50% 50% 55% 45% / 55% 55% 45% 45%;
+  animation: curious-bounce 0.6s ease;
+}
+@keyframes curious-bounce {
+  0%   { transform: translateY(0); }
+  30%  { transform: translateY(-12px); }
+  60%  { transform: translateY(4px); }
+  100% { transform: translateY(0); }
+}
+
+/* ── Antenna ───────────────────────────────────────────────── */
+.antenna {
+  position: absolute;
+  width: 6px;
+  height: 36px;
+  background: linear-gradient(to top, #f5c842, #ffe8a3);
+  top: -34px;
+  left: 50%;
+  transform: translateX(-50%);
+  border-radius: 6px 6px 0 0;
+}
+.antenna-ball {
+  position: absolute;
+  width: 16px;
+  height: 16px;
+  background: radial-gradient(circle at 35% 30%, #ffffff, var(--accent));
+  border-radius: 50%;
+  top: -10px;
+  left: 50%;
+  transform: translateX(-50%);
+  animation: glow-pulse 1.8s ease-in-out infinite;
+}
+@keyframes glow-pulse {
+  0%,100% { box-shadow: 0 0 6px 2px rgba(255,126,179,0.7); }
+  50%      { box-shadow: 0 0 14px 6px rgba(255,126,179,0.4); }
+}
+
+/* ── Eyebrows ──────────────────────────────────────────────── */
+/*
+  Each eyebrow is a thin div rotated slightly.
+  JS toggles classes to raise/furrow them.
+*/
+.eyebrow {
+  position: absolute;
+  width: 36px;
+  height: 5px;
+  background: #7a5c00;
+  border-radius: 10px;
+  top: 52px;
+  transition: transform var(--transition), top var(--transition);
+}
+.eyebrow-left  { left: 32px;  transform: rotate(-8deg); }
+.eyebrow-right { right: 32px; transform: rotate(8deg); }
+
+/* Curious: eyebrows rise */
+.mascot.curious .eyebrow-left  { transform: rotate(-15deg) translateY(-6px); }
+.mascot.curious .eyebrow-right { transform: rotate(15deg) translateY(-6px); }
+
+/* Shy: eyebrows droop */
+.mascot.shy .eyebrow-left  { transform: rotate(10deg) translateY(4px); }
+.mascot.shy .eyebrow-right { transform: rotate(-10deg) translateY(4px); }
+
+/* ── Eye Sockets ───────────────────────────────────────────── */
+/*
+  Each socket is a white circle with overflow: hidden,
+  so the pupil (dark circle inside) stays clipped to the eye.
+  The eyelid slides down from the top to "close" the eye.
+*/
+.eye-socket {
+  position: absolute;
+  width: 52px;
+  height: 52px;
+  background: var(--mascot-eye-bg);
+  border-radius: 50%;
+  top: 66px;
+  overflow: hidden;
+  box-shadow: 0 3px 10px rgba(0,0,0,0.12), inset 0 -2px 4px rgba(0,0,0,0.05);
+  transition: transform var(--transition);
+}
+.eye-left  { left: 26px; }
+.eye-right { right: 26px; }
+
+/* Blinking */
+@keyframes blink {
+  0%,90%,100% { transform: scaleY(1); }
+  95%          { transform: scaleY(0.08); }
+}
+.eye-socket { animation: blink 4s ease-in-out infinite; }
+.eye-right  { animation-delay: 0.08s; }
+
+/* ── Eyelid ────────────────────────────────────────────────── */
+/*
+  A div that slides down from top: -100% to top: 0%
+  when the "cover-eyes" class is applied to .mascot.
+  This simulates the mascot closing its eyes.
+*/
+.eyelid-top {
+  position: absolute;
+  width: 100%;
+  height: 100%;
+  background: var(--mascot-body);
+  border-radius: 50%;
+  top: -100%;
+  left: 0;
+  transition: top 0.35s cubic-bezier(0.6, 0, 0.4, 1);
+  z-index: 3;
+}
+.mascot.cover-eyes .eyelid-top {
+  top: 0; /* slide eyelid down — eye appears closed */
+}
+
+/* ── Pupils ────────────────────────────────────────────────── */
+/*
+  Pupils are positioned absolutely inside the socket.
+  JS calculates an offset (max ±10px) and sets
+  style.transform = translate(x, y) to track the mouse.
+*/
+.pupil {
+  position: absolute;
+  width: 26px;
+  height: 26px;
+  background: radial-gradient(circle at 38% 32%, #555, var(--mascot-pupil) 70%);
+  border-radius: 50%;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  transition: transform 0.07s ease-out;
+  z-index: 2;
+}
+/* Shine dot on pupil */
+.pupil-shine {
+  position: absolute;
+  width: 8px;
+  height: 8px;
+  background: rgba(255,255,255,0.9);
+  border-radius: 50%;
+  top: 4px;
+  left: 6px;
+}
+
+/* ── Blush ─────────────────────────────────────────────────── */
+.blush {
+  position: absolute;
+  width: 30px;
+  height: 14px;
+  background: var(--mascot-cheek);
+  border-radius: 50%;
+  opacity: 0.55;
+  top: 124px;
+  filter: blur(3px);
+  transition: opacity var(--transition);
+}
+.blush-left  { left: 20px; }
+.blush-right { right: 20px; }
+.mascot.shy .blush { opacity: 0.9; } /* blush harder when shy */
+
+/* ── Mouth ─────────────────────────────────────────────────── */
+.mouth {
+  position: absolute;
+  width: 38px;
+  height: 20px;
+  bottom: 40px;
+  left: 50%;
+  transform: translateX(-50%);
+  overflow: hidden;
+  transition: transform var(--transition);
+}
+.mouth-inner {
+  width: 38px;
+  height: 38px;
+  border: 4px solid #a05a00;
+  border-radius: 50%;
+  position: relative;
+  top: 0;
+  transition: top var(--transition), border-color var(--transition);
+}
+
+/* Curious: open mouth (oval) */
+.mascot.curious .mouth { height: 26px; }
+.mascot.curious .mouth-inner { top: -4px; border-color: #7a3f00; }
+
+/* Shy / cover: straight line mouth */
+.mascot.shy .mouth { height: 10px; }
+.mascot.cover-eyes .mouth .mouth-inner { border-color: #c87a00; top: 0; }
+
+/* ── Stethoscope (pure CSS) ────────────────────────────────── */
+.stethoscope {
+  position: absolute;
+  bottom: 10px;
+  left: 50%;
+  transform: translateX(-50%);
+}
+.steth-tube {
+  width: 50px;
+  height: 20px;
+  border: 5px solid #455a64;
+  border-top: none;
+  border-radius: 0 0 30px 30px;
+  margin: 0 auto;
+}
+.steth-head {
+  width: 14px;
+  height: 14px;
+  background: #eceff1;
+  border: 4px solid #455a64;
+  border-radius: 50%;
+  margin: 0 auto;
+  margin-top: -2px;
+}
+
+/* ── Arms ──────────────────────────────────────────────────── */
+/*
+  Arms are absolutely positioned bars with a "hand" circle at the end.
+  transform-origin is set to the shoulder joint.
+  When .cover-eyes is on .mascot, the arms rotate upward.
+*/
+.arm {
+  position: absolute;
+  width: 16px;
+  height: 68px;
+  background: linear-gradient(to bottom, var(--mascot-shadow), var(--mascot-body));
+  border-radius: 10px;
+  bottom: 30px;
+  transition: transform 0.45s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+}
+.arm-left  {
+  left: -12px;
+  transform-origin: top center;
+  transform: rotate(10deg);
+}
+.arm-right {
+  right: -12px;
+  transform-origin: top center;
+  transform: rotate(-10deg);
+}
+.hand {
+  width: 24px;
+  height: 24px;
+  background: radial-gradient(circle at 40% 30%, #fff5cc, var(--mascot-shadow));
+  border-radius: 50%;
+  position: absolute;
+  bottom: -10px;
+  left: 50%;
+  transform: translateX(-50%);
+  box-shadow: 0 3px 6px rgba(0,0,0,0.1);
+}
+
+/* Cover-eyes: arms swing up over face */
+.mascot.cover-eyes .arm-left  { transform: rotate(-140deg) translate(-10px, -10px); }
+.mascot.cover-eyes .arm-right { transform: rotate(140deg) translate(10px, -10px); }
+
+/* ── LOGIN CARD ────────────────────────────────────────────── */
+.login-section {
+  position: relative;
+  z-index: 1;
+}
+
+.card {
+  background: var(--card-bg);
+  backdrop-filter: blur(28px);
+  -webkit-backdrop-filter: blur(28px);
+  border: 1px solid var(--card-border);
+  border-radius: var(--radius-card);
+  padding: 50px 44px;
+  width: 380px;
+  box-shadow:
+    0 32px 64px rgba(0,0,0,0.09),
+    inset 0 0 0 1px rgba(255,255,255,0.5);
+}
+
+/* ── Card Header ───────────────────────────────────────────── */
+.card-header {
+  text-align: center;
+  margin-bottom: 36px;
+}
+.logo-dot {
+  width: 14px;
+  height: 14px;
+  background: var(--accent);
+  border-radius: 50%;
+  margin: 0 auto 14px;
+  box-shadow: 0 0 0 5px rgba(255,126,179,0.2);
+  animation: glow-pulse 2s ease-in-out infinite;
+}
+.card-header h1 {
+  font-size: 28px;
+  font-weight: 800;
+  background: linear-gradient(135deg, #1a1a2e 20%, #5c3d9e 100%);
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+  line-height: 1.2;
+}
+.card-header p {
+  font-size: 14px;
+  color: var(--text-light);
+  font-weight: 500;
+  margin-top: 6px;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+}
+
+/* ── Form Fields ───────────────────────────────────────────── */
+.field-group {
+  margin-bottom: 22px;
+}
+.field-group label {
+  display: block;
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--text-mid);
+  margin-bottom: 8px;
+  margin-left: 2px;
+  letter-spacing: 0.03em;
+}
+.input-wrap {
+  position: relative;
+  display: flex;
+  align-items: center;
+}
+.field-icon {
+  position: absolute;
+  left: 16px;
+  font-size: 16px;
+  pointer-events: none;
+  user-select: none;
+  line-height: 1;
+}
+.input-wrap input {
+  width: 100%;
+  padding: 15px 48px 15px 44px;
+  background: var(--input-bg);
+  border: 2px solid transparent;
+  border-radius: var(--radius-input);
+  font-family: inherit;
+  font-size: 15px;
+  color: var(--text-dark);
+  outline: none;
+  transition: border-color 0.3s ease, box-shadow 0.3s ease, background 0.3s ease;
+}
+.input-wrap input::placeholder { color: #b0b0cc; }
+.input-wrap input:focus {
+  background: rgba(255,255,255,0.95);
+  border-color: var(--accent);
+  box-shadow: 0 0 0 4px rgba(255,126,179,0.18);
+}
+
+/* ── Toggle Password Button ────────────────────────────────── */
+.toggle-pass {
+  position: absolute;
+  right: 14px;
+  background: none;
+  border: none;
+  cursor: pointer;
+  font-size: 18px;
+  padding: 4px 6px;
+  line-height: 1;
+  border-radius: 50%;
+  transition: transform 0.2s ease, background 0.2s ease;
+}
+.toggle-pass:hover {
+  transform: scale(1.2);
+  background: rgba(255,126,179,0.12);
+}
+
+/* ── Extras ────────────────────────────────────────────────── */
+.forgot-row {
+  text-align: right;
+  margin-bottom: 24px;
+  margin-top: -10px;
+}
+.forgot-link {
+  font-size: 13px;
+  color: var(--accent);
+  text-decoration: none;
+  font-weight: 600;
+  transition: opacity 0.2s;
+}
+.forgot-link:hover { opacity: 0.7; }
+
+/* ── Submit Button ─────────────────────────────────────────── */
+.submit-btn {
+  width: 100%;
+  padding: 18px;
+  background: linear-gradient(135deg, #ff9ac2 0%, #ff5fa0 100%);
+  color: #fff;
+  border: none;
+  border-radius: var(--radius-input);
+  font-family: inherit;
+  font-size: 17px;
+  font-weight: 700;
+  cursor: pointer;
+  letter-spacing: 0.03em;
+  transition: transform 0.25s ease, box-shadow 0.25s ease;
+  box-shadow: 0 10px 28px rgba(255, 90, 160, 0.35);
+}
+.submit-btn:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 18px 36px rgba(255, 90, 160, 0.45);
+}
+.submit-btn:active { transform: translateY(1px); }
+
+/* Success wave animation on submit */
+@keyframes ripple {
+  0%   { transform: scale(1); box-shadow: 0 10px 28px rgba(255,90,160,0.35); }
+  50%  { transform: scale(1.04); box-shadow: 0 18px 40px rgba(255,90,160,0.5); }
+  100% { transform: scale(1); box-shadow: 0 10px 28px rgba(255,90,160,0.35); }
+}
+.submit-btn.ripple-anim { animation: ripple 0.4s ease; }
+
+/* ── Card Footer ───────────────────────────────────────────── */
+.card-footer {
+  text-align: center;
+  margin-top: 28px;
+}
+.card-footer p { font-size: 13px; color: var(--text-light); }
+.card-footer a {
+  color: var(--accent);
+  font-weight: 700;
+  text-decoration: none;
+  transition: opacity 0.2s;
+}
+.card-footer a:hover { opacity: 0.7; }
+
+/* ── Responsive ────────────────────────────────────────────── */
+@media (max-width: 720px) {
+  .page-wrapper {
+    flex-direction: column;
+    gap: 30px;
+    padding: 30px 16px;
+  }
+  .mascot { width: 160px; height: 168px; }
+  .card { width: 100%; max-width: 400px; padding: 36px 28px; }
+}
