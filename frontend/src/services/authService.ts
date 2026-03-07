@@ -132,8 +132,29 @@ export const registerUser = async (
 
 /* ─── PASSWORD RESET (emailjs) ────────────────────────── */
 export const sendPasswordResetEmail = async (email: string): Promise<boolean> => {
-  const users = lsUsers();
-  const idx = users.findIndex(u => u.username === email);
+  let users = lsUsers();
+  let idx = users.findIndex(u => u.username === email);
+
+  // If not in localStorage, check Supabase
+  if (idx === -1 && isSupabaseConfigured) {
+    try {
+      const { data } = await supabase
+        .from('users')
+        .select('username,fullname,role')
+        .eq('username', email)
+        .maybeSingle();
+
+      if (data) {
+        // "Cache" the Supabase user locally so the token flow works on this device
+        users.push({ username: data.username, fullname: data.fullname, role: data.role, passwordHash: '' });
+        saveUsers(users);
+        idx = users.length - 1;
+      }
+    } catch (e) {
+      console.warn('Supabase check failed:', e);
+    }
+  }
+
   if (idx === -1) throw new Error('No account found with that email');
 
   const token = Math.random().toString(36).slice(2) + Math.random().toString(36).slice(2);
@@ -185,14 +206,35 @@ export const verifyResetToken = (email: string, token: string): boolean => {
   return !!(user?.resetToken === token && Date.now() < (user?.resetTokenExpiry ?? 0));
 };
 
-export const resetPassword = (email: string, token: string, newPassword: string): boolean => {
+export const resetPassword = async (email: string, token: string, newPassword: string): Promise<boolean> => {
   if (!verifyResetToken(email, token)) return false;
+
+  const hPass = hashPassword(newPassword);
+
+  // 1. Update localStorage
   const users = lsUsers();
   const idx = users.findIndex(u => u.username === email);
-  users[idx].passwordHash = hashPassword(newPassword);
-  delete users[idx].resetToken;
-  delete users[idx].resetTokenExpiry;
-  saveUsers(users);
+  if (idx !== -1) {
+    users[idx].passwordHash = hPass;
+    delete users[idx].resetToken;
+    delete users[idx].resetTokenExpiry;
+    saveUsers(users);
+  }
+
+  // 2. Update Supabase
+  if (isSupabaseConfigured) {
+    try {
+      const { error } = await supabase
+        .from('users')
+        .update({ password: hPass })
+        .eq('username', email);
+
+      if (error) console.error('Supabase password update failed:', error);
+    } catch (e) {
+      console.error('Supabase password update error:', e);
+    }
+  }
+
   return true;
 };
 
