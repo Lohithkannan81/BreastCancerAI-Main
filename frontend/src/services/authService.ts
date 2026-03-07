@@ -112,7 +112,7 @@ export const registerUser = async (
       fullname: name,
       role,
     });
-    
+
     if (error) {
       if (error.code === '23505') throw new Error('Username already exists');
       // Surface actual Supabase errors to the UI so we can debug (e.g. if SQL script wasn't run)
