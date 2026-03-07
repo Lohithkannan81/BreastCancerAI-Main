@@ -1,8 +1,6 @@
 /**
- * authService.ts — Finalized Authentication via Supabase and EmailJS.
- *
- * Strategy: Supabase first → localStorage fallback when Supabase is unavailable.
- * This ensures the app always works, even without env vars configured.
+ * authService.ts — Finalized Universal Authentication via Supabase and EmailJS.
+ * Supports cross-device password resets via Supabase cloud storage.
  */
 
 import { jwtDecode } from 'jwt-decode';
@@ -121,36 +119,47 @@ export const registerUser = async (
   return true;
 };
 
-/* ─── PASSWORD RESET (emailjs) ────────────────────────── */
+/* ─── UNIVERSAL PASSWORD RESET (Supabase + EmailJS) ─────── */
 export const sendPasswordResetEmail = async (email: string): Promise<boolean> => {
-  console.log('🔍 Initiating reset for:', email);
-  let users = lsUsers();
-  let idx = users.findIndex(u => u.username.toLowerCase() === email.toLowerCase());
+  console.log('🔍 Initiating universal reset for:', email);
 
-  if (idx === -1 && isSupabaseConfigured) {
+  const token = Math.random().toString(36).slice(2) + Math.random().toString(36).slice(2);
+  const expiry = Date.now() + 3_600_000; // 1 hour
+  let fullname = 'Doctor';
+
+  // 1. Try to save token in Supabase (Cloud)
+  if (isSupabaseConfigured) {
     try {
-      const { data } = await supabase
+      const { data, error } = await supabase
         .from('users')
-        .select('username,fullname,role')
+        .update({ reset_token: token, reset_token_expiry: expiry })
         .eq('username', email)
+        .select('fullname')
         .maybeSingle();
 
+      if (error) throw error;
       if (data) {
-        users.push({ username: data.username, fullname: data.fullname, role: data.role, passwordHash: '' });
-        saveUsers(users);
-        idx = users.length - 1;
+        fullname = data.fullname;
+        console.log('✅ Token saved to Supabase (Cloud)');
       }
-    } catch (e) {
-      console.warn('Supabase check failed:', e);
+    } catch (e: any) {
+      console.warn('Supabase token save failed, using fallback:', e.message);
     }
   }
 
-  if (idx === -1) throw new Error('No account found with that email');
+  // 2. Fallback: Save to localStorage (Local)
+  let users = lsUsers();
+  let idx = users.findIndex(u => u.username.toLowerCase() === email.toLowerCase());
+  if (idx !== -1) {
+    users[idx].resetToken = token;
+    users[idx].resetTokenExpiry = expiry;
+    saveUsers(users);
+    fullname = users[idx].fullname;
+    console.log('✅ Token saved to LocalStorage');
+  }
 
-  const token = Math.random().toString(36).slice(2) + Math.random().toString(36).slice(2);
-  users[idx].resetToken = token;
-  users[idx].resetTokenExpiry = Date.now() + 3_600_000;
-  saveUsers(users);
+  // If nowhere found, throw error
+  if (!fullname && idx === -1) throw new Error('No account found with that email');
 
   const resetLink = `${window.location.origin}/reset-password?token=${token}&email=${encodeURIComponent(email)}`;
   console.log('🔑 Recovery Link:', resetLink);
@@ -161,42 +170,63 @@ export const sendPasswordResetEmail = async (email: string): Promise<boolean> =>
 
   if (serviceId && templateId && publicKey) {
     try {
-      await emailjs.send(
-        serviceId,
-        templateId,
-        {
-          to_name: users[idx].fullname || 'Doctor',
-          to_email: email,      // Matches {{to_email}}
-          email: email,         // Matches {{email}}
-          recipient: email,     // Matches {{recipient}}
-          reset_link: resetLink,
-          link: resetLink,
-          app_name: 'BreastCancerAI'
-        },
-        publicKey
-      );
+      await emailjs.send(serviceId, templateId, {
+        to_name: fullname,
+        to_email: email, email: email, recipient: email,
+        reset_link: resetLink, link: resetLink,
+        app_name: 'BreastCancerAI'
+      }, publicKey);
       return true;
     } catch (e: any) {
       console.error('EmailJS Error:', e);
-      if (!import.meta.env.DEV) throw new Error('Failed to send reset email.');
+      throw new Error('Failed to send reset email.');
     }
-  } else {
-    console.warn('EmailJS not configured.');
-    if (!import.meta.env.DEV) throw new Error('Email service not configured.');
   }
 
   return true;
 };
 
-export const verifyResetToken = (email: string, token: string): boolean => {
+export const verifyResetToken = async (email: string, token: string): Promise<boolean> => {
+  // 1. Check Supabase (Cloud)
+  if (isSupabaseConfigured) {
+    try {
+      const { data } = await supabase
+        .from('users')
+        .select('reset_token, reset_token_expiry')
+        .eq('username', email)
+        .maybeSingle();
+
+      if (data && data.reset_token === token && Date.now() < (data.reset_token_expiry || 0)) {
+        return true;
+      }
+    } catch (e) {
+      console.warn('Supabase token verification failed:', e);
+    }
+  }
+
+  // 2. Check LocalStorage (Local)
   const user = lsUsers().find(u => u.username.toLowerCase() === email.toLowerCase());
   return !!(user?.resetToken === token && Date.now() < (user?.resetTokenExpiry ?? 0));
 };
 
 export const resetPassword = async (email: string, token: string, newPassword: string): Promise<boolean> => {
-  if (!verifyResetToken(email, token)) return false;
+  const isValid = await verifyResetToken(email, token);
+  if (!isValid) return false;
 
   const hPass = hashPassword(newPassword);
+
+  // 1. Update Supabase (Cloud)
+  if (isSupabaseConfigured) {
+    try {
+      await supabase.from('users')
+        .update({ password: hPass, reset_token: null, reset_token_expiry: null })
+        .eq('username', email);
+    } catch (e) {
+      console.error('Supabase update failed:', e);
+    }
+  }
+
+  // 2. Update LocalStorage (Local)
   const users = lsUsers();
   const idx = users.findIndex(u => u.username.toLowerCase() === email.toLowerCase());
   if (idx !== -1) {
@@ -204,14 +234,6 @@ export const resetPassword = async (email: string, token: string, newPassword: s
     delete users[idx].resetToken;
     delete users[idx].resetTokenExpiry;
     saveUsers(users);
-  }
-
-  if (isSupabaseConfigured) {
-    try {
-      await supabase.from('users').update({ password: hPass }).eq('username', email);
-    } catch (e) {
-      console.error('Supabase update failed:', e);
-    }
   }
 
   return true;
