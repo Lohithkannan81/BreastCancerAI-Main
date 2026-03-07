@@ -3,7 +3,6 @@ import { Patient, Report, AnalysisStatus } from '../types';
 
 import { getHistory, getPatients as getDbPatients, addPatient as addDbPatient } from '../services/dbService';
 
-const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:8000';
 
 interface DataContextType {
     patients: Patient[];

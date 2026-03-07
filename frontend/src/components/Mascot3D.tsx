@@ -109,13 +109,11 @@ const Mascot3D: React.FC<Mascot3DProps> = ({
                     animate={{
                         opacity: 1,
                         scale: 1,
-                        x: groupX,
-                        y: groupY,
                     }}
                     exit={{ opacity: 0, scale: 0.9 }}
                     transition={{ duration: 0.4 }}
                     className="w-full h-full relative"
-                    style={{ perspective: 1000 }}
+                    style={{ perspective: 1000, x: groupX, y: groupY }}
                 >
                     {/* Main 3D Render Image with Breathing animation */}
                     <motion.img
@@ -166,10 +164,10 @@ const Mascot3D: React.FC<Mascot3DProps> = ({
                 animate={{
                     scale: [1, 0.85, 1],
                     opacity: [0.3, 0.15, 0.3],
-                    x: useTransform(groupX, v => v * 0.5)
                 }}
                 transition={{ repeat: Infinity, duration: 3, ease: "easeInOut" }}
                 className="absolute -bottom-6 left-1/2 -translate-x-1/2 w-4/5 h-6 bg-black/30 rounded-full blur-xl z-0"
+                style={{ x: useTransform(groupX, v => v * 0.5) }}
             />
         </div>
     );
